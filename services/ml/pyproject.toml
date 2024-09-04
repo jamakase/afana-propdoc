@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "ml"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [
+    { include = "app" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+uvicorn = "^0.23.2"
+langserve = {extras = ["server"], version = ">=0.0.30"}
+pydantic = "<3"
+langchain-community = "^0.2.16"
+faiss-cpu = "^1.8.0.post1"
+
+[tool.poetry.group.dev.dependencies]
+langchain-cli = ">=0.0.15"
+
+[tool.poetry.scripts]
+start-server = "uvicorn app.server:app --host 0.0.0.0 --port 8000 --reload"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
