@@ -1,19 +1,19 @@
 version: '3.8'
 
 services:
-  backend:
-    build:
-      context: ./services/backend
-      dockerfile: Dockerfile
-    volumes:
-      - ./services/backend:/app
-    environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-    depends_on:
-      db:
-        #  required: true
-        condition: "service_healthy"
-    command: poetry run python main.py
+  # backend:
+  #   build:
+  #     context: ./services/backend
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./services/backend:/app
+  #   environment:
+  #     - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+  #   depends_on:
+  #     db:
+  #       #  required: true
+  #       condition: "service_healthy"
+  #   command: poetry run python main.py
 
   # ml:
   #   build:
@@ -46,21 +46,21 @@ services:
   #   depends_on:
   #     - backend
   #     - redis
-  flower:
-    build:
-      context: ./services/backend
-      dockerfile: Dockerfile
-    volumes:
-      - ./services/backend:/app
-    command: poetry run celery -A tasks flower --port=5555
-    ports:
-      - "5555:5555"
-    depends_on:
-      - backend
-      - redis
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+  # flower:
+  #   build:
+  #     context: ./services/backend
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./services/backend:/app
+  #   command: poetry run celery -A tasks flower --port=5555
+  #   ports:
+  #     - "5555:5555"
+  #   depends_on:
+  #     - backend
+  #     - redis
+  #   environment:
+  #     - CELERY_BROKER_URL=redis://redis:6379/0
+  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
 
   db:
     image: postgres:15
@@ -76,7 +76,8 @@ services:
       timeout: 60s
       retries: 10
       start_period: 5s
-
+    ports:
+      - "5432:5432"
   redis:
     image: redis:6
 
