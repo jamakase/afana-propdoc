@@ -1,5 +1,5 @@
 from celery.result import AsyncResult
-from routes import api
+from services.backend.routes import api
 
 
 @api.route("/task/<id>")
