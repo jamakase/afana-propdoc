@@ -1,4 +1,4 @@
-from models import db
+from services.backend.models import db
 
 
 class ConversationModel(db.Model):

@@ -1,5 +1,4 @@
-from django.db.models import IntegerField
-from wtforms import Form, TextAreaField, StringField, validators
+from wtforms import Form, StringField, validators, IntegerField
 
 
 class UploadForm(Form):

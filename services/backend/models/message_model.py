@@ -1,4 +1,4 @@
-from models import db
+from services.backend.models import db
 
 
 class MessageModel(db.Model):

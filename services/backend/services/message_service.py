@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from models import db
-from models.message_model import MessageModel
+from services.backend.models import db
+from services.backend.models.message_model import MessageModel
 
 class Role(Enum):
     SYSTEM = 1

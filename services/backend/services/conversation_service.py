@@ -1,7 +1,7 @@
-from models import db
-from models.conversation_model import ConversationModel
-from services.message_service import MessageService, SaveMessageOptions, Role
-from services.rag_service import RagService
+from services.backend.models import db
+from services.backend.models.conversation_model import ConversationModel
+from services.backend.services.message_service import MessageService, SaveMessageOptions, Role
+from services.backend.services.rag_service import RagService
 
 
 class ConversationService:

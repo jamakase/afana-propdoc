@@ -1,7 +1,7 @@
 import requests
 from celery import shared_task, Task
 
-from services.message_service import MessageService, SaveMessageOptions, Role
+from services.backend.services.message_service import MessageService, SaveMessageOptions, Role
 
 rag_url = 'http://127.0.0.1:5001/process'
 
