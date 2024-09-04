@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./services/backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./services/backend:/app
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    depends_on:
+      db:
+        #  required: true
+        condition: "service_healthy"
+    command: poetry run python main.py
+
+  # ml:
+  #   build:
+  #     context: ./services/ml
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./services/ml:/app
+  #   depends_on:
+  #     - redis
+  #   command: poetry run python main.py
+
+  # celery_worker:
+  #   build:
+  #     context: ./services/backend
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./services/backend:/app
+  #   command: poetry run celery -A tasks worker --loglevel=info
+  #   depends_on:
+  #     - backend
+  #     - redis
+
+  # celery_beat:
+  #   build:
+  #     context: ./services/backend
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./services/backend:/app
+  #   command: poetry run celery -A tasks beat --loglevel=info
+  #   depends_on:
+  #     - backend
+  #     - redis
+  flower:
+    build:
+      context: ./services/backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./services/backend:/app
+    command: poetry run celery -A tasks flower --port=5555
+    ports:
+      - "5555:5555"
+    depends_on:
+      - backend
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 60s
+      retries: 10
+      start_period: 5s
+
+  redis:
+    image: redis:6
+
+volumes:
+  postgres_data:
