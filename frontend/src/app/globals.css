@@ -32,3 +32,15 @@ body {
   }
 }
 
+/* Скрыть скроллбар для Chrome, Safari и Opera */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Скрыть скроллбар для IE, Edge и Firefox */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  /* IE и Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
