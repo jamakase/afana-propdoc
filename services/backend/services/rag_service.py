@@ -7,6 +7,18 @@ rag_url = 'http://127.0.0.1:5001/process'
 
 
 class QuestionTask(Task):
+    def before_start(self, task_id, args, kwargs):
+        print('before_start called')
+        super().before_start(task_id, args, kwargs)
+
+    def after_return(self, status, retval, task_id, args, kwargs, einfo):
+        print('after_return called')
+        super().after_return(status, retval, task_id, args, kwargs, einfo)
+
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        print('on_failure called')
+        super().on_failure(exc, task_id, args, kwargs, einfo)
+
     def on_success(self, retval, task_id, args, kwargs):
         print('on_success called')
 

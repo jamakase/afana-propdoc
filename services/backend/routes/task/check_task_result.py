@@ -2,9 +2,11 @@ from celery.result import AsyncResult
 from services.backend.routes import api
 
 
-@api.route("/task/<id>")
-def task_result(id: str) -> dict[str, object]:
+
+@api.route("/task/<id>", methods=['GET'])
+def task_result(id):
     result = AsyncResult(id)
+
     return {
         "ready": result.ready(),
         "successful": result.successful(),
