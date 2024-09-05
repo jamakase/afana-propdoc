@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from services.backend.config import Config
 from services.backend.celery_init import celery_init_app
 from services.backend.models import db
@@ -9,7 +10,7 @@ from services.backend.routes.conversation.create_conversation import  create_con
 
 def create_app():
     app = Flask(__name__)
-
+    CORS(app)
 
     with app.app_context():
         app.config.from_object(Config)
