@@ -11,15 +11,7 @@ export default function Home() {
     { id: 1, name: 'Чат 1', messages: [
       { id: 1, text: 'Привет! Это чат 1. Чем могу помочь?', sender: 'bot' },
       { id: 2, text: 'Штош, начнем...', sender: 'user' },
-    ]},
-    { id: 2, name: 'Чат 2', messages: [
-      { id: 1, text: 'Добро пожаловать в чат 2!', sender: 'bot' },
-      { id: 2, text: 'Я сам своего рода ученый', sender: 'user' },
-    ]},
-    { id: 3, name: 'Чат 3', messages: [
-      { id: 1, text: 'Здравствуйте! Это чат 3.', sender: 'bot' },
-      { id: 2, text: 'Здравствуй, товарищ', sender: 'user' },
-    ]},
+    ]}
   ]);
 
   const [currentChatId, setCurrentChatId] = useState(1);
@@ -42,18 +34,21 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: message }),
+        body: JSON.stringify({ 
+          conversation_id: currentChatId, 
+          message: message 
+        }),
       });
 
       if (!response.ok) {
-        throw new Error('Ошибка при отправке сообщения на бэкенд');
+        throw new Error('Error has occured!');
       }
 
       console.log('Сообщение успешно отправлено на бэкенд');
       
       setMessage('');
     } catch (error) {
-      console.error('Ошибка при отправке сообщения на бэкенд:', error);
+      console.error('Error has occured!', error);
       setMessage('');
     }
   };
