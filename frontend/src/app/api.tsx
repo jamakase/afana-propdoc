@@ -1,4 +1,4 @@
-import { API_URL } from "./config";
+import { API_URL } from "../domain/config";
 
 export const api = {
     async createConversation() {
