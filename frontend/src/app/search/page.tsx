@@ -1,13 +1,11 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 
 export default function Search() {
     const [searchQuery, setSearchQuery] = useState('');
 
     const handleSearch = () => {
-        // Здесь будет логика поиска
         console.log('Поиск:', searchQuery);
     };
 
