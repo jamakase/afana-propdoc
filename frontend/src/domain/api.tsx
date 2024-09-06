@@ -1,15 +1,15 @@
-const API_BASE_URL = 'http://localhost:5000'; 
+import { API_URL } from "./config";
 
 export const api = {
     async createConversation() {
-        const response = await fetch(`${API_BASE_URL}/conversation/create`, {
+        const response = await fetch(`${API_URL}/conversation/create`, {
             method: 'POST',
         });
         return response.json();
     },
 
     async sendMessage(conversationId: number, message: string) {
-        const response = await fetch(`${API_BASE_URL}/message`, {
+        const response = await fetch(`${API_URL}/message`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -20,7 +20,7 @@ export const api = {
     },
 
     async checkTaskResult(taskId: string) {
-        const response = await fetch(`${API_BASE_URL}/task/${taskId}`, {
+        const response = await fetch(`${API_URL}/task/${taskId}`, {
             method: 'GET',
         });
         return response.json();

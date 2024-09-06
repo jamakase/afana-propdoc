@@ -1,4 +1,4 @@
-from services.backend.app import create_app
+from app import create_app
 
 app, _ = create_app()
 
