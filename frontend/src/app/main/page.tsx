@@ -1,8 +1,14 @@
-"use client"; 
-import { useState, useEffect, useRef } from 'react';
+"use client";
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+<<<<<<< HEAD:frontend/src/app/main/page.tsx
+import Link from 'next/link';
+
+// import { api } from './api';
+=======
 import Header from './_components/Header';
 import { api } from '@/domain/api';
+>>>>>>> main:frontend/src/app/page.tsx
 
 type Chat = {
   id: number;
@@ -12,34 +18,46 @@ type Chat = {
 };
 
 export default function Home() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
   const [chats, setChats] = useState<Chat[]>([]);
-  const [currentChatId, setCurrentChatId] = useState(1);
+  const [currentChatId, setCurrentChatId] = useState(0);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Array<{ id: number; text: string; sender: string }>>([]);
   const [currentConversationId, setCurrentConversationId] = useState<number | null>(null);
 
   const handleSendMessage = async () => {
-    if (!message.trim() || !currentConversationId) return;
+    if (!message.trim()) return;
 
     try {
+      if (chats.length === 0) {
+        const newChatId = await handleAddChat();
+        if (!newChatId) return;
+      }
+
       const newMessage = {
         id: messages.length + 1,
         text: message,
         sender: 'user'
       };
-      setMessages([...messages, newMessage]);
-
-      const response = await api.sendMessage(currentConversationId, message);
-
-      if (!response.task_id) {
-        throw new Error('Ошибка при отправке сообщения');
-      }
-
-      console.log('Сообщение успешно отправлено на бэкенд');
       
+      setMessages(prevMessages => [...prevMessages, newMessage]);
+      setChats(prevChats => 
+        prevChats.map(chat => 
+          chat.id === currentChatId 
+            ? { ...chat, messages: [...chat.messages, newMessage] } 
+            : chat
+        )
+      );
+
+      // Закомментировали вызов API
+      // const response = await api.sendMessage(currentConversationId!, message);
+      // if (!response.task_id) {
+      //   throw new Error('Ошибка при отправке сообщения');
+      // }
+
+      console.log('Сообщение успешно отправлено');
+
       setMessage('');
     } catch (error) {
       console.error('Произошла ошибка:', error);
@@ -55,23 +73,21 @@ export default function Home() {
 
   const handleChatChange = (chatId: number) => {
     setCurrentChatId(chatId);
-    setMessages(chats.find(chat => chat.id === chatId)?.messages || []);
-    setIsMenuOpen(false);
+    const selectedChat = chats.find(chat => chat.id === chatId);
+    if (selectedChat) {
+      setMessages(selectedChat.messages);
+      setCurrentConversationId(selectedChat.conversationId);
+    }
   };
 
   const createNewConversation = async () => {
-    try {
-      const response = await api.createConversation();
-      return response.conversation_id;
-    } catch (error) {
-      console.error('Ошибка при создании новой беседы:', error);
-      return null;
-    }
+    // Заменили вызов API на локальную генерацию ID
+    return Math.floor(Math.random() * 1000000);
   };
 
   const handleAddChat = async () => {
     const newConversationId = await createNewConversation();
-    if (!newConversationId) return;
+    if (!newConversationId) return null;
 
     const maxId = Math.max(...chats.map(chat => chat.id), 0);
     const newChatId = maxId + 1;
@@ -81,93 +97,71 @@ export default function Home() {
       messages: [],
       conversationId: newConversationId
     };
-    setChats([...chats, newChat]);
+    setChats(prevChats => [...prevChats, newChat]);
     setCurrentChatId(newChatId);
     setCurrentConversationId(newConversationId);
     setMessages([]);
+    return newChatId;
   };
 
   const handleDeleteChat = (chatId: number) => {
-    if (chats.length <= 1) {
-      // Если остался только один чат, не удаляем его
-      return;
-    }
-
-    const updatedChats = chats.filter(chat => chat.id !== chatId);
-    setChats(updatedChats);
-    
-    if (currentChatId === chatId) {
-      const newCurrentChatId = updatedChats[0].id;
-      setCurrentChatId(newCurrentChatId);
-      setMessages(updatedChats[0].messages);
-    }
+    setChats(prevChats => {
+      const updatedChats = prevChats.filter(chat => chat.id !== chatId);
+      if (updatedChats.length === 0) {
+        setCurrentChatId(0);
+        setCurrentConversationId(null);
+        setMessages([]);
+      } else if (currentChatId === chatId) {
+        const newCurrentChat = updatedChats[0];
+        setCurrentChatId(newCurrentChat.id);
+        setCurrentConversationId(newCurrentChat.conversationId);
+        setMessages(newCurrentChat.messages);
+      }
+      return updatedChats;
+    });
   };
-
-  useEffect(() => {
-    const handleMouseMove = (event: MouseEvent) => {
-      if (event.clientX <= 10) {
-        setIsMenuOpen(true);
-      } else if (event.clientX > 256 && isMenuOpen) {
-        setIsMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, [isMenuOpen]);
-
-  useEffect(() => {
-    const initializeChat = async () => {
-      if (chats.length === 0) {
-        await handleAddChat();
-      } else {
-        setCurrentConversationId(chats[0].conversationId);
-      }
-    };
-
-    initializeChat();
-  }, []);
 
   return (
     <div className="min-h-screen relative overflow-hidden hide-scrollbar">
-      <Header />
-
       <main className="flex h-screen">
         <aside
           ref={menuRef}
-          className={`${isMenuOpen ? 'w-64' : 'w-0 -ml-64'} absolute h-screen bg-black p-4 transition-all duration-300 overflow-hidden`}
-          onMouseLeave={() => setIsMenuOpen(false)}
+          className="w-64 h-screen bg-black flex flex-col overflow-hidden"
         >
-          <h2 className="text-xl font-bold mb-4 text-white">История</h2>
-          <button 
-            onClick={handleAddChat}
-            className="w-full mb-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Новый чат
-          </button>
-          <ul>
-            {chats.map((chat) => (
-              <li key={chat.id} className="mb-2 flex justify-between items-center">
-                <button 
-                  className={`flex-grow text-left p-2 hover:bg-gray-700 rounded text-white ${currentChatId === chat.id ? 'bg-gray-700' : ''}`}
-                  onClick={() => handleChatChange(chat.id)}
-                >
-                  {chat.name}
-                </button>
-                {chats.length > 1 && (
-                  <button 
+          <div className="p-4">
+            <h2 className="text-xl font-bold mb-4 text-white">История чатов</h2>
+            <Link href="/search" className="w-full p-2 mb-4 bg-green-500 rounded-2xl text-white rounded hover:bg-green-600 inline-block text-center">
+              Перейти к поиску
+            </Link>
+            
+            <button
+              onClick={handleAddChat}
+              className="w-full p-2 bg-blue-500 text-white rounded-2xl hover:bg-blue-600"
+            >
+              Новый чат
+            </button>
+            
+          </div>
+          <div className="flex-1 overflow-y-auto px-4 pb-4">
+            <ul>
+              {chats.map((chat) => (
+                <li key={chat.id} className="mb-2 flex justify-between items-center">
+                  <button
+                    className={`flex-grow text-left p-2 hover:bg-gray-700 rounded text-white ${currentChatId === chat.id ? 'bg-gray-700' : ''}`}
+                    onClick={() => handleChatChange(chat.id)}
+                  >
+                    {chat.name}
+                  </button>
+                  <button
                     onClick={() => handleDeleteChat(chat.id)}
                     className="ml-2 p-1 text-red-500 hover:text-red-700"
                   >
                     X
                   </button>
-                )}
-              </li>
-            ))}
-          </ul>
+                </li>
+              ))}
+            </ul>
+          </div>
         </aside>
 
         <div className="flex-1 flex flex-col h-screen">
