@@ -30,6 +30,7 @@ export default function Search() {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Введите запрос для поиска"
                             className="flex-grow p-2 border border-gray-300 rounded-l-2xl focus:outline-none"
+                            style={{color: 'black'}}
                         />
                         <button
                             onClick={handleSearch}
