@@ -1,6 +1,8 @@
 "use client";
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
+
 // import { api } from './api';
 
 type Chat = {
@@ -129,6 +131,9 @@ export default function Home() {
             >
               Новый чат
             </button>
+            <Link href="/search" className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600 inline-block text-center">
+              Перейти к поиску
+            </Link>
           </div>
           <div className="flex-1 overflow-y-auto px-4 pb-4">
             <ul>
