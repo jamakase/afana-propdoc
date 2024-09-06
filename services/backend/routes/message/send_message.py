@@ -1,7 +1,7 @@
 import traceback
 
 from flask import request, jsonify, Blueprint
-from services.backend.services.conversation_service import ConversationService
+from services.conversation_service import ConversationService
 
 api = Blueprint('api', __name__)
 

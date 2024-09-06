@@ -1,9 +1,14 @@
 "use client";
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+<<<<<<< HEAD:frontend/src/app/main/page.tsx
 import Link from 'next/link';
 
 // import { api } from './api';
+=======
+import Header from './_components/Header';
+import { api } from '@/domain/api';
+>>>>>>> main:frontend/src/app/page.tsx
 
 type Chat = {
   id: number;

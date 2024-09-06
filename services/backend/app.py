@@ -1,11 +1,12 @@
 from flask import Flask
 from flask_cors import CORS
-from services.backend.config import Config
-from services.backend.celery_init import celery_init_app
-from services.backend.models import db
-from services.backend.routes.message.send_message import send_message
-from services.backend.routes.task.check_task_result import task_result
-from services.backend.routes.conversation.create_conversation import  create_conversation
+
+from config import Config
+from celery_init import celery_init_app
+from models import db
+from routes.message.send_message import send_message
+from routes.task.check_task_result import task_result
+from routes.conversation.create_conversation import  create_conversation
 
 
 def create_app():
