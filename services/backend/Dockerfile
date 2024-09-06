@@ -20,5 +20,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the project files
 COPY . /app
 
+EXPOSE 5000
+
 # Run the application
 ENTRYPOINT [ "python", "run.py" ]
