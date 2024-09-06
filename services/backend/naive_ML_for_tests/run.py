@@ -9,6 +9,8 @@ CORS(app)
 def process_request():
     question = request.json.get('question')
 
+    print(question)
+
     return jsonify({
         'question': question,
         'status': 'Super status',

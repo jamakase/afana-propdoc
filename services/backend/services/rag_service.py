@@ -1,3 +1,5 @@
+import time
+
 import requests
 from celery import shared_task, Task
 
@@ -40,13 +42,22 @@ class RagService:
 @shared_task(base = QuestionTask,ignore_result=False)
 def run_question_task(question: str):
     try:
-        data = {"question": question}
-        response = requests.post(rag_url, json=data)
-        response.raise_for_status()
 
-        result = response.json()
+        time.sleep(5)
 
-        return result
+        return {
+            'question': question,
+            'status': 'Super status',
+            'answer': 'Ответ на вопрос:  ' + question
+        }
+
+        # data = {"question": question}
+        # response = requests.post(rag_url, json=data)
+        # response.raise_for_status()
+        #
+        # result = response.json()
+        #
+        # return result
 
     except requests.exceptions.RequestException as e:
         return {'error': str(e)}
