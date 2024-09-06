@@ -1,5 +1,5 @@
 init:
-    cp .env.example .env
+	cp .env.example .env
 
 up:
 	docker compose up -d

@@ -1,5 +1,5 @@
 from celery.result import AsyncResult
-from services.backend.routes import api
+from routes import api
 
 
 

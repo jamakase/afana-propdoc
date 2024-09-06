@@ -1,8 +1,8 @@
 "use client"; 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Header from './components/Header';
-import { api } from './api';
+import Header from './_components/Header';
+import { api } from '@/domain/api';
 
 type Chat = {
   id: number;
