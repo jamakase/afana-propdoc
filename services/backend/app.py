@@ -1,3 +1,4 @@
+from flasgger import Swagger
 from flask import Flask
 from flask_cors import CORS
 
@@ -11,6 +12,9 @@ from routes.conversation.create_conversation import  create_conversation
 
 def create_app():
     app = Flask(__name__)
+
+    swagger = Swagger(app)
+
     CORS(app)
 
     with app.app_context():

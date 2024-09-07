@@ -1,5 +1,6 @@
 amqp==5.2.0
 async-timeout==4.0.3
+attrs==24.2.0
 billiard==4.2.0
 blinker==1.8.2
 celery==5.4.0
@@ -9,6 +10,7 @@ click==8.1.7
 click-didyoumean==0.3.1
 click-plugins==1.1.1
 click-repl==0.3.0
+flasgger==0.9.7.1
 Flask==3.0.3
 Flask-Cors==5.0.0
 Flask-SQLAlchemy==3.1.1
@@ -16,13 +18,22 @@ greenlet==3.0.3
 idna==3.8
 itsdangerous==2.2.0
 Jinja2==3.1.4
+jsonschema==4.23.0
+jsonschema-specifications==2023.12.1
 kombu==5.4.0
 MarkupSafe==2.1.5
+marshmallow==3.22.0
+mistune==3.0.2
+packaging==24.1
 prompt_toolkit==3.0.47
 psycopg2-binary==2.9.9
 python-dateutil==2.9.0.post0
+python-dotenv==1.0.1
+PyYAML==6.0.2
 redis==5.0.8
+referencing==0.35.1
 requests==2.32.3
+rpds-py==0.20.0
 six==1.16.0
 SQLAlchemy==2.0.34
 typing_extensions==4.12.2
