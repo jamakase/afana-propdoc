@@ -2,23 +2,25 @@ from fastapi import FastAPI
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.chat_models import ChatOllama
 from langchain.chains import RetrievalQA
-
 from langserve import add_routes
 from packages.retriever import Retriever
-
+from packages.prompts import prompt
 # Update the embedding model to use llama2
 embeddings = OllamaEmbeddings(model="llama3.1")
 
-retriever_factory = Retriever(embeddings)
+faiss_index_path = "/Users/jamakase/Projects/afana/data/faiss_index"
+retriever_instance = Retriever(embeddings, faiss_index_path)
 
 # Create a ChatOllama instance with the llama2 model
 llm = ChatOllama(model="llama3.1")
+
 
 # Create a RetrievalQA chain
 qa_chain = RetrievalQA.from_chain_type(
     llm=llm,
     chain_type="stuff",
-    retriever=retriever_factory.get_retriever()
+    retriever=retriever_instance.get_retriever(),
+    chain_type_kwargs={"prompt": prompt}
 )
 
 app = FastAPI(
