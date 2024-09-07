@@ -23,7 +23,7 @@ services:
       - db
       - redis
     ports:
-      - "5001:5000"
+      - "5000:5000"
 
   db:
     container_name: db

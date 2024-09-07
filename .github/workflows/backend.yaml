@@ -1,4 +1,4 @@
-name: Frontend CI workflow
+name: Backend CI workflow
 on:
   push:
     paths:
