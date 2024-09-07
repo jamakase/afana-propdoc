@@ -1,7 +1,15 @@
 version: '3.8'
 
 services:
+  frontend_app:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:3000"
+
   backend_app:
+    restart: unless-stopped
     build:
       context: ./services/backend
       dockerfile: Dockerfile
@@ -15,7 +23,7 @@ services:
       - db
       - redis
     ports:
-      - "5000:5000"
+      - "5001:5000"
 
   db:
     container_name: db
@@ -76,15 +84,19 @@ services:
   #     - "5001:5001"
   #   working_dir: /app
 
-  # ml:
-  #   build:
-  #     context: ./services/ml
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./services/ml:/app
-  #   depends_on:
-  #     - redis
-  #   command: poetry run python main.py
+  ml:
+    build:
+      context: ./services/ml
+      dockerfile: Dockerfile
+    environment:
+      FAISS_INDEX_PATH: /data/faiss_index
+    volumes:
+      - ./services/ml:/app
+      - ./services/ml/data:/data
+    depends_on:
+      - redis
+    ports:
+      - "3001:8080"
 
 volumes:
   postgres_data:
