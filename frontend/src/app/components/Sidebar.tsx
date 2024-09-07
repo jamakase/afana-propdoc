@@ -1,22 +1,20 @@
 import { useRef } from 'react';
 import Link from 'next/link';
 
-type Chat = {
+type Conversation = {
   id: number;
   name: string;
-  messages: Array<{ id: number; text: string; sender: string }>;
-  conversationId: number;
-};
+  messages: Array<{ id: number; text: string; sender: string }>};
 
 type SidebarProps = {
-  chats: Chat[];
-  currentChatId: number | null;
-  onChatChange: (conversationId: number) => void;
+  conversations: Conversation[];
+  currentConversationId: number | null;
+  onConversationChange: (conversationId: number) => void;
   onAddConversation: () => void;
-  onDeleteChat: (chatId: number) => void;
+  onDeleteConversation: (conversationId: number) => void;
 };
 
-export default function Sidebar({ chats, currentChatId, onChatChange, onAddConversation, onDeleteChat }: SidebarProps) {
+export default function Sidebar({ conversations, currentConversationId, onConversationChange, onAddConversation, onDeleteConversation }: SidebarProps) {
   const menuRef = useRef(null);
 
   return (
@@ -40,16 +38,16 @@ export default function Sidebar({ chats, currentChatId, onChatChange, onAddConve
       </div>
       <div className="flex-1 overflow-y-auto px-4 pb-4">
         <ul>
-          {chats.map((chat) => (
-            <li key={chat.id} className="mb-2 flex justify-between items-center">
+          {conversations.map((conversation) => (
+            <li key={conversation.id} className="mb-2 flex justify-between items-center">
               <button
-                className={`flex-grow text-left p-2 hover:bg-gray-700 rounded text-white ${currentChatId === chat.id ? 'bg-gray-700' : ''}`}
-                onClick={() => onChatChange(chat.id)}
+                className={`flex-grow text-left p-2 hover:bg-gray-700 rounded text-white ${currentConversationId === conversation.id ? 'bg-gray-700' : ''}`}
+                onClick={() => onConversationChange(conversation.id)}
               >
-                {chat.name}
+                {conversation.name}
               </button>
               <button
-                onClick={() => onDeleteChat(chat.id)}
+                onClick={() => onDeleteConversation(conversation.id)}
                 className="ml-2 p-1 text-red-500 hover:text-red-700"
               >
                 X
