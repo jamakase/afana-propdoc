@@ -13,7 +13,6 @@ check_task_result_swagger = {
     'parameters': [
         {
             'name': 'id',
-            'in': 'path',
             'required': True,
             'description': 'ID задачи, для которой нужно получить результат',
             'schema': {
