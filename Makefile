@@ -2,6 +2,9 @@ init:
 	cp .env.example .env
 
 up:
+	docker compose up
+
+run-detached:
 	docker compose up -d
 
 down:

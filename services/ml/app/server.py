@@ -3,16 +3,22 @@ from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.chat_models import ChatOllama
 from langchain.chains import RetrievalQA
 from langserve import add_routes
+
+from .config import config
+
 from packages.retriever import Retriever
 from packages.prompts import prompt
-# Update the embedding model to use llama2
-embeddings = OllamaEmbeddings(model="llama3.1")
 
-faiss_index_path = "/Users/jamakase/Projects/afana/data/faiss_index"
+import os
+
+# Update the embedding model to use llama2
+embeddings = OllamaEmbeddings(model=config.MODEL)
+
+faiss_index_path = config.FAISS_INDEX_PATH
 retriever_instance = Retriever(embeddings, faiss_index_path)
 
 # Create a ChatOllama instance with the llama2 model
-llm = ChatOllama(model="llama3.1")
+llm = ChatOllama(model=config.MODEL)
 
 
 # Create a RetrievalQA chain
@@ -35,4 +41,4 @@ add_routes(app, qa_chain)
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=config.PORT)
