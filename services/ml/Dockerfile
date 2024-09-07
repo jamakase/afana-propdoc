@@ -1,30 +1,21 @@
-# Use an official Python runtime as a parent image
-FROM python:3.9-slim
+FROM python:3.11-slim
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+RUN pip install poetry==1.6.1
 
-# Set work directory
-WORKDIR /app
+RUN poetry config virtualenvs.create false
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
+WORKDIR /code
 
-# Install Poetry
-RUN pip install poetry
+COPY ./pyproject.toml ./README.md ./poetry.lock* ./
 
-# Copy only requirements to cache them in docker layer
-COPY pyproject.toml poetry.lock* /app/
+COPY ./package[s] ./packages
 
-# Project initialization:
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi
+RUN poetry install  --no-interaction --no-ansi --no-root
 
-# Copy project
-COPY . /app
+COPY ./app ./app
 
-# Run the application
-CMD ["poetry", "run", "python", "main.py"]
+RUN poetry install --no-interaction --no-ansi
+
+EXPOSE 8080
+
+CMD exec uvicorn app.server:app --host 0.0.0.0 --port 8080
