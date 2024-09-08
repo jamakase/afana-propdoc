@@ -8,7 +8,7 @@ from routes.message.send_message import send_message
 from routes.task.check_task_result import task_result
 from routes.conversation.create_conversation import  create_conversation
 from routes.message.get_message import get_user_messages
-from routes.message.delete_message import delete_message
+from routes.conversation.delete_conversation import delete_message
 
 
 def create_app():
@@ -40,6 +40,6 @@ def create_app():
     app.add_url_rule('/conversation/create', view_func=create_conversation, methods=['POST'])
     app.add_url_rule('/task/<id>', view_func=task_result, methods=['GET'])
     app.add_url_rule('/messages/<user_id>', view_func=get_user_messages, methods=['GET'])
-    app.add_url_rule('/delete/<conversation_id>', view_func=delete_message, methods=['DELETE'])
+    app.add_url_rule('/conversation/delete/<conversation_id>', view_func=delete_message, methods=['DELETE'])
 
     return app, celery

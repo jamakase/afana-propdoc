@@ -5,7 +5,7 @@ from services.conversation_service import ConversationService
 
 api = Blueprint('api', __name__)
 
-@api.route('/delete/<conversation_id>', methods=['DELETE'])
+@api.route('/conversation/delete/<conversation_id>', methods=['DELETE'])
 def delete_message(conversation_id):
     try:
         ConversationService.from_id(conversation_id).delete_conversation()
