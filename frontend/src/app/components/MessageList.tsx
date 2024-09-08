@@ -21,9 +21,11 @@ export default function MessageList({ messages }: MessageListProps) {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.5 }}
-                        className={`mb-4 ${msg.sender === 'user' ? 'text-right' : 'text-left'}`}
+                        className={`mb-4 ${msg.sender === 'user' ? 'flex justify-end' : ''}`}
                     >
-                        <div className={`inline-block p-2 rounded-lg ${msg.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black'}`}>
+                        <div className={`inline-block p-2 rounded-lg max-w-[70%] break-words ${
+                            msg.sender === 'user' ? 'bg-[#9400FF] text-white text-left' : 'bg-gray-300 text-black text-justify'
+                        }`}>
                             {msg.text}
                         </div>
                     </motion.div>

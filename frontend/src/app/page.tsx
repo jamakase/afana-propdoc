@@ -178,7 +178,7 @@ export default function Home() {
         <div className="flex-1 flex flex-col h-screen">
           <MessageList messages={messages} />
 
-          <div className="p-4 bg-[#17153B]">
+          <div className="p-4 bg-white">
             <div className="flex">
               <input
                 type="text"
@@ -186,14 +186,20 @@ export default function Home() {
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Введите ваш вопрос"
-                className="flex-grow p-2 border border-gray-300 rounded-l-2xl focus:outline-none"
+                className="flex-grow p-2 bg-gray-300 border border-gray-300 rounded-l-2xl focus:outline-none"
                 style={{ color: 'black' }}
               />
               <button
                 onClick={handleSendMessage}
-                className="px-4 py-2 bg-blue-500 text-white rounded-r-2xl hover:bg-blue-600 focus:outline-none"
+                
+                className="group w-auto inline-block text-center rounded-r-2xl
+                 bg-[#2E236C] p-[2px]focus:outline-none cursor-pointer select-none"
               >
-                Отправить
+                <span className="block rounded-r-2xl bg-[#17153B] px-6 py-3 text-sm font-medium group-hover:bg-transparent">
+                  <h2 className="text-sm text-white">
+                    Отправить
+                  </h2>
+                </span>
               </button>
             </div>
           </div>
