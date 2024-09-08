@@ -1,11 +1,10 @@
 "use client";
-import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
+
+import { useState, useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { api } from './api';
 import Sidebar from './components/Sidebar';
 import MessageList from './components/MessageList';
-
 
 type Conversation = {
   id: number;
@@ -15,24 +14,39 @@ type Conversation = {
 
 export default function Home() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [currentConversationId, setCurrentConversationId] = useState<number | null>(null);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Array<{ id: number; text: string; sender: string }>>([]);
-  const [currentConversationId, setCurrentConversationId] = useState<number | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    const createInitialChat = async () => {
-      if (conversations.length === 0) {
-        try {
+    const initializeUser = async () => {
+      let storedUserId = localStorage.getItem('userId');
+      
+      if (!storedUserId) {
+        storedUserId = uuidv4();
+        localStorage.setItem('userId', storedUserId);
+      }
+      
+      setUserId(storedUserId);
+      
+      try {
+        const userConversations = await api.getUserConversations(storedUserId);
+        if (userConversations.length > 0) {
+          setConversations(userConversations);
+          setCurrentConversationId(userConversations[0].id);
+          setMessages(userConversations[0].messages);
+        } else {
           const newConversation = await handleAddConversation();
           setConversations([newConversation]);
           setCurrentConversationId(newConversation.id);
-        } catch (error) {
-          console.error('Ошибка при создании начального чата:', error);
         }
+      } catch (error) {
+        console.error('Ошибка при инициализации пользователя:', error);
       }
     };
 
-    createInitialChat();
+    initializeUser();
   }, []);
 
   const handleSendMessage = async () => {
@@ -40,13 +54,11 @@ export default function Home() {
 
     try {
       if (currentConversationId === null) {
-        await handleAddConversation();
+        const newConversation = await handleAddConversation();
+        if (!newConversation) {
+          throw new Error('Не удалось создать новый чат');
+        }
       }
-
-      if (currentConversationId === null) {
-        throw new Error('Не удалось создать или выбрать чат');
-      }
-
       const newMessage = {
         id: messages.length + 1,
         text: message,
@@ -63,11 +75,13 @@ export default function Home() {
       );
 
       const response = await api.sendMessage(currentConversationId!, message);
+
       if (!response.task_id) {
         throw new Error('Ошибка при отправке сообщения');
       }
 
       console.log('Сообщение успешно отправлено, task_id:', response.task_id);
+      setMessage('');
 
       let botResponse;
       do {
@@ -92,7 +106,6 @@ export default function Home() {
         );
       }
 
-      setMessage('');
     } catch (error) {
       console.error('Произошла ошибка:', error);
       setMessage('');
@@ -115,10 +128,11 @@ export default function Home() {
 
   const handleAddConversation = async () => {
     try {
-      const response = await api.createConversation();
+      if (!userId) throw new Error('UserId не определен');
+      const response = await api.createConversation(userId);
       if (response.conversation_id) {
         const newConversation = {
-          id: conversations.length + 1,
+          id: response.conversation_id,
           name: `Чат ${conversations.length + 1}`,
           messages: []
         };
@@ -164,7 +178,7 @@ export default function Home() {
         <div className="flex-1 flex flex-col h-screen">
           <MessageList messages={messages} />
 
-          <div className="p-4 bg-white border-t border-gray-200">
+          <div className="p-4 bg-[#17153B]">
             <div className="flex">
               <input
                 type="text"

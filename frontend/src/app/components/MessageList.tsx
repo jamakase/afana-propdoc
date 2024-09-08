@@ -12,7 +12,7 @@ type MessageListProps = {
 
 export default function MessageList({ messages }: MessageListProps) {
     return (
-        <div className="flex-1 p-4 overflow-y-auto bg-gray-100">
+        <div className="flex-1 p-4 overflow-y-auto bg-white">
             <AnimatePresence>
                 {messages.map((msg) => (
                     <motion.div

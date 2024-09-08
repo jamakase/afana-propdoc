@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type Conversation = {
   id: number;
@@ -20,28 +21,51 @@ export default function Sidebar({ conversations, currentConversationId, onConver
   return (
     <aside
       ref={menuRef}
-      className="w-64 h-screen bg-black flex flex-col overflow-hidden"
+      className="w-64 h-screen bg-[#17153B] flex flex-col overflow-hidden"
     >
       <div className="p-4">
         <h2 className="text-xl font-bold mb-4 text-white">История чатов</h2>
-        <Link href="/search" className="w-full p-2 mb-4 bg-green-500 rounded-2xl text-white rounded hover:bg-green-600 inline-block text-center">
-          Перейти к поиску
-        </Link>
         
-        <button
-          onClick={onAddConversation}
-          className="w-full p-2 bg-blue-500 text-white rounded-2xl hover:bg-blue-600"
+        <a
+          className="group w-full p-2 mb-4 inline-block text-center rounded-full bg-gradient-to-r from-[#27005D] via-[#9400FF] to-[#AED2FF] p-[2px] hover:text-white focus:outline-none focus:ring active:text-opacity-75"
+          href="/search"
         >
-          Новый чат
-        </button>
-        
+          <span
+            className="block rounded-full bg-black px-8 py-3 text-sm font-medium group-hover:bg-transparent"
+          >
+            Перейти к поиску
+          </span>
+        </a>
+
+        <button
+          className="group w-full p-2 mb-4 inline-block text-center rounded-full bg-gradient-to-r from-[#070260] via-[#090979] to-[#00d4ff] p-[2px] hover:text-white focus:outline-none focus:ring active:text-opacity-75 cursor-pointer select-none"
+          onClick={onAddConversation}
+        >
+          <span
+            className="block rounded-full bg-black px-8 py-3 text-sm font-medium group-hover:bg-transparent"
+          >
+            Новый чат
+          </span>
+        </button>        
       </div>
       <div className="flex-1 overflow-y-auto px-4 pb-4">
-        <ul>
+        <AnimatePresence mode="popLayout">
           {conversations.map((conversation) => (
-            <li key={conversation.id} className="mb-2 flex justify-between items-center">
+            <motion.li
+              key={conversation.id}
+              layout
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ 
+                opacity: { duration: 0.2 },
+                layout: { duration: 0.4 },
+                scale: { duration: 0.2 }
+              }}
+              className="mb-2 flex justify-between items-center"
+            >
               <button
-                className={`flex-grow text-left p-2 hover:bg-gray-700 rounded text-white ${currentConversationId === conversation.id ? 'bg-gray-700' : ''}`}
+                className={`flex-grow text-left p-2 hover:bg-[#2E236C] rounded text-white ${currentConversationId === conversation.id ? 'bg-[#C8ACD6]' : ''}`}
                 onClick={() => onConversationChange(conversation.id)}
               >
                 {conversation.name}
@@ -52,9 +76,9 @@ export default function Sidebar({ conversations, currentConversationId, onConver
               >
                 X
               </button>
-            </li>
+            </motion.li>
           ))}
-        </ul>
+        </AnimatePresence>
       </div>
     </aside>
   );
