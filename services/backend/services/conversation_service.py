@@ -1,4 +1,6 @@
-from flask import jsonify
+import uuid
+
+from flask import jsonify, session
 from models import db
 from models.conversation_model import ConversationModel
 from services.message_service import MessageService, SaveMessageOptions, Role
@@ -21,8 +23,9 @@ class ConversationService:
 
 
     @staticmethod
-    def create_conversation() -> ConversationModel:
-        new_conversation = ConversationModel()
+    def create_conversation(user_id: uuid) -> ConversationModel:
+
+        new_conversation = ConversationModel(user_id = user_id)
 
         db.session.add(new_conversation)
         db.session.commit()

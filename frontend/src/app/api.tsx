@@ -4,6 +4,7 @@ export const api = {
     async createConversation() {
         const response = await fetch(`${API_URL}/conversation/create`, {
             method: 'POST',
+            credentials: "include",
         });
         return response.json();
     },

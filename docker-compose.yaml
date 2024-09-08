@@ -13,6 +13,8 @@ services:
     build:
       context: ./services/backend
       dockerfile: Dockerfile
+    env_file:
+      - .env
     volumes:
       - ./services/backend:/app
     environment:
