@@ -5,10 +5,6 @@ export const api = {
         const response = await fetch(`${API_URL}/conversation/create`, {
             method: 'POST',
             credentials: "include",
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ user_id: userId }),
         });
         return response.json();
     },
