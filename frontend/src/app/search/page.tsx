@@ -11,15 +11,22 @@ export default function Search() {
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-100">
-            <header className="bg-black p-4">
+            <header className="bg-[#9400FF] p-4">
                 <div className="container mx-auto flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-white">Поиск документов</h1>
-                    <Link href="/" className="px-4 py-2 bg-blue-500 rounded-2xl text-white rounded hover:bg-blue-600">
-                        Вернуться на главную
-                    </Link>
+                    <h1 className="text-2xl font-bold text-white">Поиск по документам</h1>
+                    <Link
+                        href="/"
+                        className="group inline-block text-center rounded-full bg-gradient-to-r from-[#070260] via-[#090979] to-[#00d4ff] p-[2px] hover:text-white focus:outline-none active:text-opacity-75 cursor-pointer select-none transition-transform active:scale-95"
+                    >
+                        <span className="block rounded-full bg-black px-4 py-1 text-sm font-medium group-hover:bg-transparent">
+                            <span className="text-sm text-white">
+                                Вернуться на главную
+                            </span>
+                        </span>
+                    </Link>  
                 </div>
             </header>
-            <main className="flex-grow container mx-auto p-4">
+            <main className="flex-grow container bg-[#17153B] mx-auto p-4">
                 <div className="mb-8 flex justify-center">
                     <div className="relative w-full max-w-2xl">
                         <label htmlFor="Search" className="sr-only">Поиск</label>
@@ -28,7 +35,7 @@ export default function Search() {
                             type="text"
                             id="Search"
                             placeholder="Искать..."
-                            className="w-full rounded-md border-gray-200 py-2.5 pe-10 shadow-sm sm:text-sm"
+                            className="w-full rounded-full p-4 focus:outline-none py-2.5 text-black"
                         />
 
                         <span className="absolute inset-y-0 end-0 grid w-10 place-content-center">

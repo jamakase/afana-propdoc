@@ -42,13 +42,13 @@ body {
 }
 
 body, input, button, textarea {
-  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Helvetica", sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 * {
-  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Helvetica", sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 body, input, button, textarea, select {
-  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Helvetica", sans-serif;
+  font-family: "Inter", sans-serif;
 }
