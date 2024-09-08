@@ -40,3 +40,15 @@ body {
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+body, input, button, textarea {
+  font-family: "Inter", sans-serif;
+}
+
+* {
+  font-family: "Inter", sans-serif;
+}
+
+body, input, button, textarea, select {
+  font-family: "Inter", sans-serif;
+}
