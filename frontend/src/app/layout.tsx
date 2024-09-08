@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { Roboto_Mono } from "next/font/google";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const robotoMono = Roboto_Mono({ subsets: ["latin", "cyrillic"], weight: ['400', '700'], display: 'swap' });
+const inter = Inter({ subsets: ["latin", "cyrillic"] });
 
 export const metadata: Metadata = {
   title: "afana-propdoc",

@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type Conversation = {
   id: number;
@@ -20,41 +21,98 @@ export default function Sidebar({ conversations, currentConversationId, onConver
   return (
     <aside
       ref={menuRef}
-      className="w-64 h-screen bg-black flex flex-col overflow-hidden"
+      className="w-64 h-screen bg-[#17153B] flex flex-col overflow-hidden"
     >
+      <h1 className="text-4xl font-bold mb-4 bg-[#9400FF] text-center">AFANA</h1>
+
       <div className="p-4">
-        <h2 className="text-xl font-bold mb-4 text-white">История чатов</h2>
-        <Link href="/search" className="w-full p-2 mb-4 bg-green-500 rounded-2xl text-white rounded hover:bg-green-600 inline-block text-center">
-          Перейти к поиску
-        </Link>
+        <h2 className="text-2xl font-bold mb-4 text-white text-center">История чатов</h2>
         
-        <button
-          onClick={onAddConversation}
-          className="w-full p-2 bg-blue-500 text-white rounded-2xl hover:bg-blue-600"
+        <a
+          className="group w-full p-2 mb-4 inline-block text-center rounded-full bg-gradient-to-r from-[#27005D] via-[#9400FF] to-[#AED2FF] p-[2px] hover:text-white focus:outline-none active:text-opacity-75 transition-transform active:scale-95" // Добавлен эффект уменьшения при нажатии
+          href="/search"
         >
-          Новый чат
-        </button>
-        
+          <span
+            className="block rounded-full bg-black px-4 py-1 text-sm font-medium group-hover:bg-transparent"
+          >
+            <h2 className="text-sm text-white text-center">
+              Перейти к поиску
+            </h2>
+          </span>
+        </a>
+
+        <button
+          className="group w-full p-2 mb-4 inline-block text-center rounded-full bg-gradient-to-r from-[#070260] via-[#090979] to-[#00d4ff] p-[2px] hover:text-white focus:outline-none active:text-opacity-75 cursor-pointer select-none transition-transform active:scale-95" // Добавлен эффект уменьшения при нажатии
+          onClick={onAddConversation}
+        >
+          <span
+            className="block rounded-full bg-black px-4 py-1 text-sm font-medium group-hover:bg-transparent"
+          >
+            <h2 className="text-sm text-white text-center">
+              Новый чат
+            </h2>          
+          </span>
+
+        </button>        
       </div>
-      <div className="flex-1 overflow-y-auto px-4 pb-4">
-        <ul>
-          {conversations.map((conversation) => (
-            <li key={conversation.id} className="mb-2 flex justify-between items-center">
-              <button
-                className={`flex-grow text-left p-2 hover:bg-gray-700 rounded text-white ${currentConversationId === conversation.id ? 'bg-gray-700' : ''}`}
-                onClick={() => onConversationChange(conversation.id)}
+      <div className="flex-1 overflow-y-auto px-4 pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+        <fieldset className="space-y-4">
+          <legend className="sr-only">Чаты</legend>
+          <AnimatePresence mode="popLayout">
+            {conversations.map((conversation) => (
+              <motion.div
+                key={conversation.id}
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ 
+                  opacity: { duration: 0.2 },
+                  layout: { duration: 0.4 },
+                  scale: { duration: 0.2 }
+                }}
               >
-                {conversation.name}
-              </button>
-              <button
-                onClick={() => onDeleteConversation(conversation.id)}
-                className="ml-2 p-1 text-red-500 hover:text-red-700"
-              >
-                X
-              </button>
-            </li>
-          ))}
-        </ul>
+                <label
+                  htmlFor={`chat-${conversation.id}`}
+                  className={`flex text-base cursor-pointer items-center justify-between gap-4 rounded-lg border border-gray-700 p-4 text-sm font-medium shadow-sm hover:border-[#9400FF] ${
+                    currentConversationId === conversation.id
+                    ? 'bg-[#9400FF] text-black'
+                      : 'bg-[#2E236C] text-white'
+                  }`}
+                >
+                  <p className="text-white">{conversation.name}</p>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onDeleteConversation(conversation.id);
+                    }}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      height="24" 
+                      viewBox="0 -960 960 960" 
+                      width="24" 
+                      fill="#00d4ff"
+                      className="hover:fill-[#00ABCD]"
+                    >
+                      <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
+                    </svg>
+                  </button>
+                  <input
+                    type="radio"
+                    name="ChatOption"
+                    value={`chat-${conversation.id}`}
+                    id={`chat-${conversation.id}`}
+                    className="sr-only"
+                    checked={currentConversationId === conversation.id}
+                    onChange={() => onConversationChange(conversation.id)}
+                  />
+                </label>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </fieldset>
       </div>
     </aside>
   );
