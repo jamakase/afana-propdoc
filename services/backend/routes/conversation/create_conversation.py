@@ -4,7 +4,7 @@ from functools import wraps
 from flasgger import swag_from
 from flask import jsonify, Blueprint, g, session, request, make_response
 from services.conversation_service import  ConversationService
-from schemas.conversation_schema import ConversationSchema, create_conversation_swagger
+from schemas.create_conversation_schema import ConversationSchema, create_conversation_swagger
 
 from utils.user_required import user_required
 
