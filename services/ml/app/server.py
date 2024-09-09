@@ -1,6 +1,4 @@
 from fastapi import FastAPI
-from langchain_community.embeddings import OllamaEmbeddings
-from langchain_community.chat_models import ChatOllama
 from langchain.chains import RetrievalQA
 from langserve import add_routes
 
@@ -9,17 +7,32 @@ from .config import config
 from packages.retriever import Retriever
 from packages.prompts import prompt
 
-import os
-
-# Update the embedding model to use llama2
-embeddings = OllamaEmbeddings(model=config.MODEL)
-
 faiss_index_path = config.FAISS_INDEX_PATH
-retriever_instance = Retriever(embeddings, faiss_index_path)
 
 # Create a ChatOllama instance with the llama2 model
-llm = ChatOllama(model=config.MODEL)
+if config.USE_OPENROUTER:
+    from langchain_openai import ChatOpenAI
+    from langchain_openai import OpenAIEmbeddings
 
+    llm = ChatOpenAI(
+        model="openai/gpt-3.5-turbo",
+        openai_api_key=config.OPENROUTER_API_KEY,
+        base_url="https://openrouter.ai/api/v1",
+        max_tokens=1000
+    )
+    embeddings = OpenAIEmbeddings(
+        model=config.OPENAI_EMBEDDING_MODEL,
+        openai_api_key=config.OPENROUTER_API_KEY,
+        base_url="https://openrouter.ai/api/v1"
+    )
+else:
+    from langchain_community.chat_models import ChatOllama
+    from langchain_community.embeddings import OllamaEmbeddings
+
+    llm = ChatOllama(model=config.MODEL)
+    embeddings = OllamaEmbeddings(model=config.MODEL)
+
+retriever_instance = Retriever(embeddings, faiss_index_path)
 
 # Create a RetrievalQA chain
 qa_chain = RetrievalQA.from_chain_type(
