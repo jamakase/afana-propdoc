@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { api } from './api';
+import { api } from '../domain/api/api';
 import Sidebar from './components/Sidebar';
 import MessageList from './components/MessageList';
+import { useConfig } from '@/domain/config/ConfigProvider';
 
 // Тип для хранения информации о чате
 type Conversation = {
@@ -21,10 +22,12 @@ export default function Home() {
   const [messages, setMessages] = useState<Array<{ id: number; text: string; sender: string }>>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  const config = useConfig();
+
   useEffect(() => {
     const initializeUser = async () => {
       try {
-        const response = await api.get_messages__user_id_();
+        const response = await api.get_messages__user_id_(config.ENDPOINT);
         console.log('API response:', response);
         
         if (response.data && Array.isArray(response.data) && response.data.length > 0) {
@@ -78,7 +81,7 @@ export default function Home() {
         )
       );
 
-      const response = await api.sendMessage(conversationIdAtSend!, message);
+      const response = await api.sendMessage(config.ENDPOINT, conversationIdAtSend!, message);
 
       if (!response.task_id) {
         throw new Error('Ошибка при отправке сообщения');
@@ -90,7 +93,7 @@ export default function Home() {
       let botResponse;
       do {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        botResponse = await api.checkTaskResult(response.task_id);
+        botResponse = await api.checkTaskResult(config.ENDPOINT, response.task_id);
       } while (!botResponse.ready);
 
       if (botResponse.successful && botResponse.value) {
@@ -136,7 +139,7 @@ export default function Home() {
 
   const handleAddConversation = async () => {
     try {
-      const response = await api.createConversation();
+      const response = await api.createConversation(config.ENDPOINT);
       if (response.conversation_id) {
         const newConversation = {
           id: response.conversation_id,
@@ -159,7 +162,7 @@ export default function Home() {
 
   const handleDeleteConversation = async (conversationId: number) => {
     try {
-      await api.deleteConversation(conversationId);
+      await api.deleteConversation(config.ENDPOINT, conversationId);
 
       setConversations(prevConversations => {
         const updatedConversations = prevConversations.filter(conversation => conversation.id !== conversationId);
@@ -181,7 +184,7 @@ export default function Home() {
 
   const loadMessagesForConversation = async (conversationId: number) => {
     try {
-      const response = await api.getMessages(conversationId);
+      const response = await api.getMessages(config.ENDPOINT, conversationId);
       if (response && response.length > 0 && response[0].messages && response[0].messages.length > 0) {
         const conversationMessages = response[0].messages[0][conversationId];
         if (conversationMessages && Array.isArray(conversationMessages)) {

@@ -1,12 +1,34 @@
 version: '3.8'
 
 services:
+  traefik:
+    image: traefik:v2.11
+    container_name: traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/ssl:/letsencrypt
+    restart: always
+
   frontend_app:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    ports:
-      - "8080:3000"
+    environment:
+      - API_URL=http://api.${HOST}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=Host(`${HOST}`)"
+      - "traefik.http.routers.app.entrypoints=web"
+      - "traefik.http.services.app.loadbalancer.server.port=3000"
 
   backend_app:
     restart: unless-stopped
@@ -24,8 +46,11 @@ services:
     depends_on:
       - db
       - redis
-    ports:
-      - "5000:5000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`api.${HOST}`)"
+      - "traefik.http.routers.api.entrypoints=web"
+      - "traefik.http.services.api.loadbalancer.server.port=5000"
 
   db:
     container_name: db
@@ -57,7 +82,7 @@ services:
   celery_worker:
     build:
       context: ./services/backend
-      dockerfile: Dockerfile-celery
+      dockerfile: Dockerfile
     command: celery -A celery_worker.celery worker --loglevel=info
     volumes:
       - ./services/backend:/app
@@ -69,22 +94,6 @@ services:
       - db
       - redis
       - backend_app
-
-
-  # naive_ml_app:
-  #   build:
-  #     context: ./services/backend
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./services/backend/naive_ML_for_tests:/app
-  #   environment:
-  #     - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-  #   depends_on:
-  #     - db
-  #   command: python3 -m services.backend.naive_ML_for_tests.run
-  #   ports:
-  #     - "5001:5001"
-  #   working_dir: /app
 
   ml:
     build:
