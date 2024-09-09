@@ -1,7 +1,7 @@
 import { API_URL } from "../domain/config";
 
 export const api = {
-    async createConversation(userId: string) {
+    async createConversation() {
         const response = await fetch(`${API_URL}/conversation/create`, {
             method: 'POST',
             credentials: "include",
@@ -27,11 +27,20 @@ export const api = {
         return response.json();
     },
 
-    async get_messages__user_id_(userId: string) {
-        const response = await fetch(`${API_URL}//messages/${userId}`, {
-            method: 'GET',
+    async get_messages__user_id_() {
+        const response = await fetch(`${API_URL}/conversations/get`, {
+            method: 'POST',
+            credentials: "include"
         });
-        console.log(response);
+        const data = await response.json();
+        console.log(data);
+        return data;
+    },
+
+    async deleteConversation(conversationId: number) {
+        const response = await fetch(`${API_URL}/conversation/delete/${conversationId}`, {
+            method: 'DELETE',
+        });
         return response.json();
     },
 };

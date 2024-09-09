@@ -13,16 +13,26 @@ type SidebarProps = {
   onConversationChange: (conversationId: number) => void;
   onAddConversation: () => void;
   onDeleteConversation: (conversationId: number) => void;
+  isSidebarOpen: boolean;
+  onCloseSidebar: () => void;
 };
 
-export default function Sidebar({ conversations, currentConversationId, onConversationChange, onAddConversation, onDeleteConversation }: SidebarProps) {
+export default function Sidebar({ conversations, currentConversationId, onConversationChange, onAddConversation, onDeleteConversation, isSidebarOpen, onCloseSidebar }: SidebarProps) {
   const menuRef = useRef(null);
 
   return (
     <aside
       ref={menuRef}
-      className="w-64 h-screen bg-[#17153B] flex flex-col overflow-hidden"
+      className={`fixed md:static inset-y-0 left-0 z-40 w-64 h-full bg-[#17153B] flex flex-col overflow-hidden transform ${
+        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } md:translate-x-0 transition-transform duration-300 ease-in-out`}
     >
+      <button
+        className="md:hidden absolute top-2 right-4 text-white"
+        onClick={onCloseSidebar}
+      >
+        ✕
+      </button>
       <h1 className="text-4xl font-bold mb-4 bg-[#9400FF] text-center">AFANA</h1>
 
       <div className="p-4">
