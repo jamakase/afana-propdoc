@@ -1,0 +1,8 @@
+ssh_pwauth: no
+users:
+  - name: yc-user
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    groups: sudo
+    ssh-authorized-keys:
+      - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDu/exbhpCNI5atDTYsS390r5on+nrTBLwDJKQl1Iz6O jamakase54@gmail.com"
