@@ -14,7 +14,7 @@ get_message_swagger = {
     'parameters': [
         {
             'name': 'conversation_id',
-            'in': 'path',  # Указано, что параметр передается в URL как часть пути
+            'in': 'path',
             'required': True,
             'description': 'ID беседы, для которой нужно получить сообщения',
             'schema': {

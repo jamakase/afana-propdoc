@@ -53,7 +53,7 @@ class ConversationService:
     @staticmethod
     def get_conversations(user_id):
         conversations = ConversationModel.query.filter_by(user_id=user_id).all()
-
+        print(conversations)
         if not conversations:
             return jsonify({'error': 'No conversations found for this user'}), 404
 
