@@ -1,6 +1,5 @@
 import uuid
-
-from flask import jsonify, session
+from flask import jsonify
 from models import db
 from models.conversation_model import ConversationModel
 from services.message_service import MessageService, SaveMessageOptions, Role
@@ -54,9 +53,10 @@ class ConversationService:
     @staticmethod
     def get_conversations(user_id):
         conversations = ConversationModel.query.filter_by(user_id=user_id).all()
+
         if not conversations:
             return jsonify({'error': 'No conversations found for this user'}), 404
 
-        conversation_ids = [conv.id for conv in conversations]
-        messages = MessageService.get_message(conversation_ids)
-        return messages
+        conversation_ids = [conversation.id for conversation in conversations]
+
+        return conversation_ids
