@@ -1,17 +1,18 @@
+import traceback
 from flask import jsonify, Blueprint
-from flasgger import swag_from
-from schemas.get_message_schema import messages_swagger
-from services.conversation_service import ConversationService
+from services.message_service import MessageService
 
 
 api = Blueprint('api', __name__)
 
-@api.route('/messages/<user_id>', methods=['GET'])
-@swag_from(messages_swagger)
-def get_user_messages(user_id):
+@api.route('/messages/<conversation_id>', methods=['GET'])
+def get_user_messages(conversation_id):
     try:
-        messages = ConversationService.get_conversations(user_id)
-        return messages
+        result = MessageService.get_message(conversation_id)
+
+        return jsonify(result)
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(traceback.format_exc())
+        return jsonify({"error": str(e)}), 400
+

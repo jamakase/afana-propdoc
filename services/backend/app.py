@@ -46,7 +46,7 @@ def create_app():
     app.add_url_rule('/conversation/create', view_func=create_conversation, methods=['POST'])
     app.add_url_rule('/conversations/get', view_func=get_conversation, methods=['POST'])
     app.add_url_rule('/task/<id>', view_func=task_result, methods=['GET'])
-    app.add_url_rule('/messages/<user_id>', view_func=get_user_messages, methods=['GET'])
+    app.add_url_rule('/messages/<conversation_id>', view_func=get_user_messages, methods=['GET'])
     app.add_url_rule('/conversation/delete/<conversation_id>', view_func=delete_message, methods=['DELETE'])
 
     return app, celery
