@@ -43,4 +43,12 @@ export const api = {
         });
         return response.json();
     },
+
+    async getMessages(conversationId: number) {
+        const response = await fetch(`${API_URL}/messages/${conversationId}`, {
+            method: 'GET',
+            credentials: "include"
+        });
+        return response.json();
+    },
 };
