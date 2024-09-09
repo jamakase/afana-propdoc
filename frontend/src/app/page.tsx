@@ -1,23 +1,25 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import { api } from './api';
 import Sidebar from './components/Sidebar';
 import MessageList from './components/MessageList';
 
+// Тип для хранения информации о чате
 type Conversation = {
   id: number;
   name: string;
   messages: Array<{ id: number; text: string; sender: string }>;
 };
 
+// Основная функция компонента
 export default function Home() {
+  // Состояния для хранения списка чатов, текущего чата и сообщений
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<number | null>(null);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Array<{ id: number; text: string; sender: string }>>([]);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const initializeUser = async () => {
@@ -29,16 +31,13 @@ export default function Home() {
           const formattedConversations = response.data.map((id: number) => ({
             id: id,
             name: `Чат ${response.data.indexOf(id) + 1}`,
-            messages: [] // Здесь нужно будет загрузить сообщения отдельным запросом
+            messages: []
           }));
           
           setConversations(formattedConversations);
           setCurrentConversationId(formattedConversations[0].id);
           
-          // Здесь нужно загрузить сообщения для первой беседы
-          // и установить их с помощью setMessages
-          // Например: const messages = await api.getMessagesForConversation(formattedConversations[0].id);
-          // setMessages(messages);
+          await loadMessagesForConversation(formattedConversations[0].id);
         } else {
           const newConversation = await handleAddConversation();
           setConversations([newConversation]);
@@ -68,16 +67,18 @@ export default function Home() {
         sender: 'user'
       };
 
+      const conversationIdAtSend = currentConversationId;
+
       setMessages(prevMessages => [...prevMessages, newMessage]);
       setConversations(prevConversations =>
         prevConversations.map(conversation =>
-          conversation.id === currentConversationId
+          conversation.id === conversationIdAtSend
             ? { ...conversation, messages: [...conversation.messages, newMessage] }
             : conversation
         )
       );
 
-      const response = await api.sendMessage(currentConversationId!, message);
+      const response = await api.sendMessage(conversationIdAtSend!, message);
 
       if (!response.task_id) {
         throw new Error('Ошибка при отправке сообщения');
@@ -121,11 +122,15 @@ export default function Home() {
     }
   };
 
-  const handleChatChange = (id: number) => {
+  const handleChatChange = async (id: number) => {
     const selectedConversation = conversations.find(conversation => conversation.id === id);
     if (selectedConversation) {
-      setMessages(selectedConversation.messages);
       setCurrentConversationId(selectedConversation.id);
+      if (selectedConversation.messages.length === 0) {
+        await loadMessagesForConversation(selectedConversation.id);
+      } else {
+        setMessages(selectedConversation.messages);
+      }
     }
   };
 
@@ -168,30 +173,69 @@ export default function Home() {
         }
         return updatedConversations;
       });
-
-      // Опционально: показать уведомление об успешном удалении
       console.log('Чат успешно удален');
     } catch (error) {
-      // Обработка ошибок
       console.error('Ошибка при удалении чата:', error);
-      // Опционально: показать уведомление об ошибке пользователю
+    }
+  };
+
+  const loadMessagesForConversation = async (conversationId: number) => {
+    try {
+      const response = await api.getMessages(conversationId);
+      if (response && response.length > 0 && response[0].messages && response[0].messages.length > 0) {
+        const conversationMessages = response[0].messages[0][conversationId];
+        if (conversationMessages && Array.isArray(conversationMessages)) {
+          const formattedMessages = conversationMessages.map((msg: any) => ({
+            id: msg.id,
+            text: msg.text,
+            sender: msg.role === 1 ? 'bot' : 'user'
+          }));
+          setMessages(formattedMessages);
+          setConversations(prevConversations =>
+            prevConversations.map(conv =>
+              conv.id === conversationId ? { ...conv, messages: formattedMessages } : conv
+            )
+          );
+        } else {
+          setMessages([]);
+        }
+      } else {
+        setMessages([]);
+      }
+    } catch (error) {
+      console.error('Ошибка при загрузке сообщений:', error);
     }
   };
 
   return (
     <div className="min-h-screen relative overflow-hidden hide-scrollbar">
-      <main className="flex h-screen">
-        <Sidebar
-          conversations={conversations}
-          currentConversationId={currentConversationId}
-          onConversationChange={handleChatChange}
-          onAddConversation={handleAddConversation}
-          onDeleteConversation={(id) => handleDeleteConversation(id)}
-          isSidebarOpen={isSidebarOpen}
-          onCloseSidebar={() => setIsSidebarOpen(false)}
-        />
+      <header className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#17153B] p-4 flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-white">AFANA</h1>
+        {isSidebarOpen && (
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="text-white focus:outline-none"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        )}
+      </header>
+      <main className="flex h-screen pt-16 md:pt-0">
+        <div className="fixed left-0 top-0 h-full md:relative">
+          <Sidebar
+            conversations={conversations}
+            currentConversationId={currentConversationId}
+            onConversationChange={handleChatChange}
+            onAddConversation={handleAddConversation}
+            onDeleteConversation={(id) => handleDeleteConversation(id)}
+            isSidebarOpen={isSidebarOpen}
+            onCloseSidebar={() => setIsSidebarOpen(false)}
+          />
+        </div>
 
-        <div className="flex-1 flex flex-col h-screen">
+        <div className="flex-1 flex flex-col h-screen ml-[300px] md:ml-0">
           <MessageList messages={messages} />
 
           <div className="p-4 bg-white">
@@ -207,9 +251,8 @@ export default function Home() {
               />
               <button
                 onClick={handleSendMessage}
-
                 className="group w-auto inline-block text-center rounded-r-2xl
-                 bg-[#2E236C] p-[2px]focus:outline-none cursor-pointer select-none"
+                 bg-[#2E236C] p-[2px] focus:outline-none cursor-pointer select-none"
               >
                 <span className="block rounded-r-2xl bg-[#17153B] px-6 py-3 text-sm font-medium group-hover:bg-transparent">
                   <h2 className="text-sm text-white">
