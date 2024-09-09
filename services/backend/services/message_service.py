@@ -1,7 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass
 from enum import Enum
-
 from flask import jsonify
 from models import db
 from models.message_model import MessageModel
@@ -59,10 +58,12 @@ class MessageService:
         return 'Messages deleted successfully', 200
 
     @staticmethod
-    def get_message(conversation_ids):
-        messages = MessageModel.query.filter(MessageModel.conversation_id.in_(conversation_ids)).all()
+    def get_message(conversation_id):
+        messages = MessageModel.query.filter(MessageModel.conversation_id.in_([conversation_id])).all()
+        print("CONV_ID:", conversation_id)
         if not messages:
             return jsonify({'error': 'No messages found for these conversations'}), 404
+
 
         grouped_messages = defaultdict(list)
         for message in messages:
@@ -80,4 +81,4 @@ class MessageService:
             ]
         }
 
-        return jsonify(result), 200
+        return result, 200
