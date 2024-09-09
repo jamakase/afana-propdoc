@@ -30,10 +30,11 @@ export const api = {
         return response.json();
     },
 
-    async getUserConversations(userId: string) {
-        const response = await fetch(`${API_URL}/conversation/user/${userId}`, {
+    async get_messages__user_id_(userId: string) {
+        const response = await fetch(`${API_URL}//messages/${userId}`, {
             method: 'GET',
         });
+        console.log(response);
         return response.json();
     },
 };
