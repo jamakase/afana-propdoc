@@ -4,10 +4,7 @@ export const api = {
     async createConversation(userId: string) {
         const response = await fetch(`${API_URL}/conversation/create`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ user_id: userId }),
+            credentials: "include",
         });
         return response.json();
     },

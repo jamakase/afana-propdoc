@@ -1,3 +1,4 @@
+import os
 from flasgger import Swagger
 from flask import Flask
 from flask_cors import CORS
@@ -10,6 +11,9 @@ from routes.conversation.create_conversation import  create_conversation
 from routes.message.get_message import get_user_messages
 from routes.conversation.delete_conversation import delete_message
 
+
+broker_url = os.environ.get('BROKER_URL')
+result_backend = os.environ.get('RESULT_BACKEND')
 
 def create_app():
     app = Flask(__name__)
@@ -25,8 +29,8 @@ def create_app():
 
         app.config.from_mapping(
             CELERY=dict(
-                broker_url="redis://redis",
-                result_backend="redis://redis",
+                broker_url=broker_url,
+                result_backend=result_backend,
                 task_ignore_result=True,
             ),
         )
@@ -35,6 +39,8 @@ def create_app():
         celery = celery_init_app(app)
 
         db.create_all()
+
+    app.secret_key = os.environ.get('APP_SECRET_KEY')
 
     app.add_url_rule('/message', view_func=send_message, methods=['POST'])
     app.add_url_rule('/conversation/create', view_func=create_conversation, methods=['POST'])
