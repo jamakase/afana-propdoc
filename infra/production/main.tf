@@ -4,10 +4,10 @@ locals {
 
 module "app" {
   source = "./modules/app"
-  project = "staging"
+  project = "production"
   folder_id = var.folder_id
 
-  compose_file = file("${path.module}/files/docker-compose.vpn.yaml")
+  compose_file = file("${path.module}/files/docker-compose.yaml")
   ssh_key = local.ssh
   network_id = module.net.vpc_id
   subnet_id = module.net.public_subnets["10.121.0.0/16"].subnet_id

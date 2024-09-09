@@ -42,7 +42,7 @@ jobs:
         id: login-cr
         uses: yc-actions/yc-cr-login@v2
         with:
-          yc-sa-json-credentials: ${{ secrets.YANDEX_AUTH_KEY }}
+          yc-sa-json-credentials: ${{ secrets.YANDEX_SA_KEY }}
       - run: |
           echo "Packaging docker image ..."
           tag="${DOCKER_REGISTRY}/app:${{ github.sha }}"
@@ -50,4 +50,4 @@ jobs:
           docker push ${DOCKER_REGISTRY}/app --all-tags
         env:
           NEXT_PUBLIC_API_URL: https://api.afana-propdoc.ru
-          DOCKER_REGISTRY: cr.yandex/
+          DOCKER_REGISTRY: cr.yandex/crpc50gkvq2bp251sfgb
