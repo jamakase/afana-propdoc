@@ -53,11 +53,7 @@ class MessageService:
         if not conversation_id:
             return 'Conversation ID not found', 400
 
-
-        num_deleted = MessageModel.query.filter_by(conversation_id=conversation_id).delete()
-
-        if num_deleted == 0:
-            return 'No messages found for this conversation', 404
+        MessageModel.query.filter_by(conversation_id=conversation_id).delete()
 
         db.session.commit()
         return 'Messages deleted successfully', 200
