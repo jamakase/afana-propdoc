@@ -17,25 +17,28 @@ export default function Home() {
   const [currentConversationId, setCurrentConversationId] = useState<number | null>(null);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Array<{ id: number; text: string; sender: string }>>([]);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
     const initializeUser = async () => {
-      let storedUserId = localStorage.getItem('userId');
-      
-      if (!storedUserId) {
-        storedUserId = uuidv4();
-        localStorage.setItem('userId', storedUserId);
-      }
-      
-      setUserId(storedUserId);
-      
       try {
-        const userConversations = await api.getUserConversations(storedUserId);
-        if (userConversations.length > 0) {
-          setConversations(userConversations);
-          setCurrentConversationId(userConversations[0].id);
-          setMessages(userConversations[0].messages);
+        const response = await api.get_messages__user_id_();
+        console.log('API response:', response);
+        
+        if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+          const formattedConversations = response.data.map((id: number) => ({
+            id: id,
+            name: `Чат ${response.data.indexOf(id) + 1}`,
+            messages: [] // Здесь нужно будет загрузить сообщения отдельным запросом
+          }));
+          
+          setConversations(formattedConversations);
+          setCurrentConversationId(formattedConversations[0].id);
+          
+          // Здесь нужно загрузить сообщения для первой беседы
+          // и установить их с помощью setMessages
+          // Например: const messages = await api.getMessagesForConversation(formattedConversations[0].id);
+          // setMessages(messages);
         } else {
           const newConversation = await handleAddConversation();
           setConversations([newConversation]);
@@ -128,14 +131,14 @@ export default function Home() {
 
   const handleAddConversation = async () => {
     try {
-      if (!userId) throw new Error('UserId не определен');
-      const response = await api.createConversation(userId);
+      const response = await api.createConversation();
       if (response.conversation_id) {
         const newConversation = {
           id: response.conversation_id,
           name: `Чат ${conversations.length + 1}`,
           messages: []
         };
+
         setConversations(prevConversations => [...prevConversations, newConversation]);
         setCurrentConversationId(newConversation.id);
         setMessages([]);
@@ -149,19 +152,30 @@ export default function Home() {
     }
   };
 
-  const handleDeleteConversation = (conversationId: number) => {
-    setConversations(prevConversations => {
-      const updatedConversations = prevConversations.filter(conversation => conversation.id !== conversationId);
-      if (updatedConversations.length === 0) {
-        setCurrentConversationId(null);
-        setMessages([]);
-      } else if (currentConversationId === conversationId) {
-        const newCurrentConversation = updatedConversations[0];
-        setCurrentConversationId(newCurrentConversation.id);
-        setMessages(newCurrentConversation.messages);
-      }
-      return updatedConversations;
-    });
+  const handleDeleteConversation = async (conversationId: number) => {
+    try {
+      await api.deleteConversation(conversationId);
+
+      setConversations(prevConversations => {
+        const updatedConversations = prevConversations.filter(conversation => conversation.id !== conversationId);
+        if (updatedConversations.length === 0) {
+          setCurrentConversationId(null);
+          setMessages([]);
+        } else if (currentConversationId === conversationId) {
+          const newCurrentConversation = updatedConversations[0];
+          setCurrentConversationId(newCurrentConversation.id);
+          setMessages(newCurrentConversation.messages);
+        }
+        return updatedConversations;
+      });
+
+      // Опционально: показать уведомление об успешном удалении
+      console.log('Чат успешно удален');
+    } catch (error) {
+      // Обработка ошибок
+      console.error('Ошибка при удалении чата:', error);
+      // Опционально: показать уведомление об ошибке пользователю
+    }
   };
 
   return (
@@ -172,7 +186,9 @@ export default function Home() {
           currentConversationId={currentConversationId}
           onConversationChange={handleChatChange}
           onAddConversation={handleAddConversation}
-          onDeleteConversation={handleDeleteConversation}
+          onDeleteConversation={(id) => handleDeleteConversation(id)}
+          isSidebarOpen={isSidebarOpen}
+          onCloseSidebar={() => setIsSidebarOpen(false)}
         />
 
         <div className="flex-1 flex flex-col h-screen">
@@ -191,7 +207,7 @@ export default function Home() {
               />
               <button
                 onClick={handleSendMessage}
-                
+
                 className="group w-auto inline-block text-center rounded-r-2xl
                  bg-[#2E236C] p-[2px]focus:outline-none cursor-pointer select-none"
               >
