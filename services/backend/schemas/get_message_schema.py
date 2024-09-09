@@ -1,60 +1,55 @@
 from marshmallow import Schema, fields
 
 
-class MessageSchema(Schema):
-    task_id = fields.Str(required=True)
-    id = fields.Int(required=True)
-    role = fields.Str(required=True)
-    text = fields.Str(required=True)
+class CheckTaskResultSchema(Schema):
+    task_id = fields.Str(allow_none=True, description="ID задачи")
+    id = fields.Int(allow_none=True, description="ID сообщения в таблице messages")
+    role = fields.Str(allow_none=True, description="Роль отправителя сообщения (1 - система, 2 - пользователь)")
+    text = fields.Str(allow_none=True, description="Текст сообщения")
 
 
-messages_swagger = {
-    'tags': ['Messages'],
-    'description': 'Получить все беседы для указанного пользователя, включая сообщения бесед',
+get_message_swagger = {
+    'tags': ['Message'],
+    'description': 'Получить сообщения беседы по ID беседы',
     'parameters': [
         {
-            'name': 'user_id',
-            'type': 'string',
+            'name': 'conversation_id',
+            'in': 'path',  # Указано, что параметр передается в URL как часть пути
             'required': True,
-            'description': 'ID пользователя для получения сообщений'
+            'description': 'ID беседы, для которой нужно получить сообщения',
+            'schema': {
+                'type': 'integer'
+            }
         }
     ],
     'responses': {
-        '200': {
-            'description': 'Список сообщений, сгруппированных по conversation_id',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'messages': {
-                        'type': 'array',
-                        'items': {
-                            'type': 'object',
-                            'properties': {
-                                'conversation_id': {
-                                    'type': 'integer',
-                                    'description': 'ID беседы'
-                                },
-                                'messages': {
-                                    'type': 'array',
-                                    'items': {
-                                        'type': 'object',
-                                        'properties': {
-                                            'task_id': {
-                                                'type': 'string',
-                                                'description': 'ID задачи'
-                                            },
-                                            'id': {
-                                                'type': 'integer',
-                                                'description': 'ID сообщения'
-                                            },
-                                            'role': {
-                                                'type': 'string',
-                                                'description': 'Роль отправителя сообщения (1 - "system", 2 - "user")'
-                                            },
-                                            'text': {
-                                                'type': 'string',
-                                                'description': 'Текст сообщения'
-                                            }
+        200: {
+            'description': 'Сообщения в беседе',
+            'content': {
+                'application/json': {
+                    'schema': {
+                        'type': 'object',
+                        'properties': {
+                            'messages': {
+                                'type': 'array',
+                                'items': {
+                                    'type': 'object',
+                                    'properties': {
+                                        'task_id': {
+                                            'type': 'string',
+                                            'description': 'ID задачи'
+                                        },
+                                        'id': {
+                                            'type': 'integer',
+                                            'description': 'ID сообщения в таблице messages'
+                                        },
+                                        'role': {
+                                            'type': 'string',
+                                            'description': 'Роль отправителя сообщения (1 - система, 2 - пользователь)'
+                                        },
+                                        'text': {
+                                            'type': 'string',
+                                            'description': 'Текст сообщения'
                                         }
                                     }
                                 }
@@ -64,8 +59,21 @@ messages_swagger = {
                 }
             }
         },
-        '404': {
-            'description': 'Не найдены беседы или сообщения для указанного пользователя'
+        404: {
+            'description': 'ID беседы не найдено',
+            'content': {
+                'application/json': {
+                    'schema': {
+                        'type': 'object',
+                        'properties': {
+                            'error': {
+                                'type': 'string',
+                                'description': 'Описание ошибки'
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
