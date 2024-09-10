@@ -41,4 +41,4 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
 # Run the application
-CMD ["python", "-m", "app.server"]
+CMD exec uvicorn app.server:app --host 0.0.0.0 --port ${PORT:-8000}

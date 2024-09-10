@@ -15,6 +15,8 @@ export const metadata: Metadata = {
   },
 };
 
+const config = { ENDPOINT: process.env.API_URL ?? 'http://localhost:5000' };
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -27,7 +29,7 @@ export default async function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body className={inter.className}>
-        <ConfigProvider configData={{ ENDPOINT: process.env.API_URL ?? 'http://localhost:5000' }}>
+        <ConfigProvider configData={config}>
           {children}
         </ConfigProvider>
       </body>
