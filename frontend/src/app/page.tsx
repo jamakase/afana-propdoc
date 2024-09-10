@@ -22,29 +22,39 @@ export default function Home({ params }: { params: { id?: string } }) {
   const [messages, setMessages] = useState<Array<{ id: number; text: string; sender: string }>>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  // Инициализация пользователя
   useEffect(() => {
     const initializeUser = async () => {
       try {
         const response = await api.getConversations();
         console.log('API response:', response);
-        
+
+        // Если у пользователя есть чаты, то инициализируем их
         if (response.data && Array.isArray(response.data) && response.data.length > 0) {
-          const formattedConversations = response.data.map((id: number) => ({
+          const formattedConversations = response.data.map((id: number, index: number) => ({
             id: id,
-            name: `Чат ${response.data.indexOf(id) + 1}`,
+            name: `Чат ${index + 1}`,
             messages: []
           }));
-          
+
           setConversations(formattedConversations);
-          
+
           const initialConversationId = params.id ? parseInt(params.id) : formattedConversations[0].id;
           setCurrentConversationId(initialConversationId);
-          
+
           await loadMessagesForConversation(initialConversationId);
-        } else {
+
+          if (!params.id) {
+            window.history.pushState({}, '', `/${initialConversationId}`);
+          }
+        } 
+        // Если пользователь не имеет чатов, то создаем новый чат
+        else {
           const newConversation = await handleAddConversation();
           setConversations([newConversation]);
           setCurrentConversationId(newConversation.id);
+
+          window.history.pushState({}, '', `/${newConversation.id}`);
         }
       } catch (error) {
         console.error('Ошибка при инициализации пользователя:', error);
@@ -142,16 +152,22 @@ export default function Home({ params }: { params: { id?: string } }) {
     try {
       const response = await api.createConversation();
       if (response.conversation_id) {
+        const maxChatNumber = Math.max(...conversations.map(conv => {
+          const match = conv.name.match(/Чат (\d+)/);
+          return match ? parseInt(match[1]) : 0;
+        }), 0);
+        
+        const newChatNumber = maxChatNumber + 1;
+        
         const newConversation = {
           id: response.conversation_id,
-          name: `Чат ${conversations.length + 1}`,
+          name: `Чат ${newChatNumber}`,
           messages: []
         };
 
         setConversations(prevConversations => [...prevConversations, newConversation]);
         setCurrentConversationId(newConversation.id);
         setMessages([]);
-        window.history.pushState({}, '', `/${newConversation.id}`);
         return newConversation;
       } else {
         throw new Error('Не удалось создать новый чат');
@@ -218,15 +234,15 @@ export default function Home({ params }: { params: { id?: string } }) {
         {isSidebarOpen && (
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="text-white focus:outline-none"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            className="text-white focus:outline-none"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
         )}
       </header>
-      
+
       <main className="flex h-screen pt-16 md:pt-0">
         <div className="fixed left-0 top-0 h-full md:relative">
           <Sidebar
@@ -244,19 +260,19 @@ export default function Home({ params }: { params: { id?: string } }) {
           <MessageList messages={messages} />
 
           <div className="p-4 bg-white">
-            <div className="flex">
+            <div className="flex items-stretch">
               <input
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Введите ваш вопрос"
-                className="flex-grow p-2 bg-[#EFF0F3] border border-gray-300 rounded-l-2xl focus:outline-none"
+                className="flex-grow p-2 bg-[#EFF0F3] border border-gray-300 rounded-l-2xl focus:outline-none h-full"
                 style={{ color: 'black' }}
               />
-              <Button 
+              <Button
                 onClick={handleSendMessage}
-                className="rounded-r-2xl bg-[#1D1F27] focus:outline-none cursor-pointer hover:bg-[#606371] -ml-px"
+                className="rounded-r-2xl rounded-l-none bg-[#1D1F27] focus:outline-none cursor-pointer hover:bg-[#606371] border-l-0 h-full"
               >
                 Отправить
               </Button>

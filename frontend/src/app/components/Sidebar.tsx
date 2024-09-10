@@ -66,7 +66,7 @@ export default function Sidebar({ conversations, currentConversationId, onConver
               {conversations.map((conversation) => (
                 <motion.div
                   key={conversation.id}
-                  layout // Добавляем это свойство
+                  layout
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
@@ -75,7 +75,7 @@ export default function Sidebar({ conversations, currentConversationId, onConver
                     ease: "easeInOut",
                     opacity: { duration: 0.2 },
                     scale: { duration: 0.2 },
-                    layout: { duration: 0.3 } // Добавляем анимацию для layout
+                    layout: { duration: 0.3 }
                   }}
                 >
                   <Link

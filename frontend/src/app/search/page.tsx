@@ -10,20 +10,18 @@ export default function Search() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-[#17153B]">
-            <header className="bg-[#9400FF] p-4 w-full">
-                <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center">
-                    <h1 className="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-0">Поиск по документам</h1>
+        <div className="min-h-screen flex flex-col bg-white">
+            <header className="bg-[#F6CDFA] p-4 w-full rounded-b-[30px]">
+                <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-row justify-between items-center">
+                    <h1 className="text-xl sm:text-2xl font-bold text-black">Поиск по документам</h1>
                     <Link
                         href="/"
-                        className="group inline-block text-center rounded-full bg-gradient-to-r from-[#070260] via-[#090979] to-[#00d4ff] p-[2px] hover:text-white focus:outline-none active:text-opacity-75 cursor-pointer select-none transition-transform active:scale-95"
+                        className="inline-flex items-center justify-center text-center rounded-full bg-white focus:outline-none active:text-opacity-75 active:bg-[#EFF0F6] hover:bg-[#EFF0F6] cursor-pointer select-none transition-transform active:scale-95"
                     >
-                        <span className="block rounded-full bg-black px-3 sm:px-4 py-1 text-xs sm:text-sm font-medium group-hover:bg-transparent">
-                            <span className="text-white">
-                                Вернуться на главную
-                            </span>
+                        <span className="px-4 py-2 text-sm font-medium">
+                            Вернуться на главную
                         </span>
-                    </Link>  
+                    </Link>
                 </div>
             </header>
             <main className="flex-grow w-full">
@@ -36,7 +34,7 @@ export default function Search() {
                                 type="text"
                                 id="Search"
                                 placeholder="Искать..."
-                                className="w-full rounded-full p-4 focus:outline-none py-2.5 text-black"
+                                className="w-full bg-[#EFF0F3] rounded-full p-4 focus:outline-none py-2.5 text-black"
                             />
 
                             <span className="absolute inset-y-0 end-0 grid w-10 place-content-center">
