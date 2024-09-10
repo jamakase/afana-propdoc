@@ -11,20 +11,16 @@ faiss_index_path = config.FAISS_INDEX_PATH
 
 # Create a ChatOllama instance with the llama2 model
 if config.USE_OPENROUTER:
-    from langchain_openai import ChatOpenAI
-    from langchain_openai import OpenAIEmbeddings
+    from langchain_community.chat_models import ChatOpenAI
+    from langchain_huggingface.embeddings import HuggingFaceEmbeddings
 
     llm = ChatOpenAI(
-        model="openai/gpt-3.5-turbo",
+        model=config.MODEL,
         openai_api_key=config.OPENROUTER_API_KEY,
         base_url="https://openrouter.ai/api/v1",
-        max_tokens=1000
+        max_tokens=1000,
     )
-    embeddings = OpenAIEmbeddings(
-        model=config.OPENAI_EMBEDDING_MODEL,
-        openai_api_key=config.OPENROUTER_API_KEY,
-        base_url="https://openrouter.ai/api/v1"
-    )
+    embeddings = HuggingFaceEmbeddings(model_name=config.EMBEDDING_MODEL)
 else:
     from langchain_community.chat_models import ChatOllama
     from langchain_community.embeddings import OllamaEmbeddings
@@ -39,7 +35,7 @@ qa_chain = RetrievalQA.from_chain_type(
     llm=llm,
     chain_type="stuff",
     retriever=retriever_instance.get_retriever(),
-    chain_type_kwargs={"prompt": prompt}
+    chain_type_kwargs={"prompt": prompt},
 )
 
 app = FastAPI(

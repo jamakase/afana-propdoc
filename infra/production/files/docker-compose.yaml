@@ -1,85 +1,61 @@
 version: '3.8'
 
 services:
+  traefik:
+    image: traefik:v2.11
+    container_name: traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/ssl:/letsencrypt
+    restart: always
+
+  frontend_app:
+    image: cr.yandex/crpc50gkvq2bp251sfgb/app
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      - API_URL=http://api.${HOST}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=Host(`${HOST}`)"
+      - "traefik.http.routers.app.entrypoints=web"
+      - "traefik.http.services.app.loadbalancer.server.port=3000"
+
   backend_app:
+    image: cr.yandex/crpc50gkvq2bp251sfgb/backend
+    restart: unless-stopped
     build:
       context: ./services/backend
       dockerfile: Dockerfile
+    env_file:
+      - .env
     volumes:
       - ./services/backend:/app
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
     depends_on:
       - db
       - redis
-    ports:
-      - "3333:5000"
-
-  # naive_ml_app:
-  #   build:
-  #     context: ./services/backend
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./services/backend/naive_ML_for_tests:/app
-  #   environment:
-  #     - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-  #   depends_on:
-  #     - db
-  #   command: python3 -m services.backend.naive_ML_for_tests.run
-  #   ports:
-  #     - "5001:5001"
-  #   working_dir: /app
-
-  # ml:
-  #   build:
-  #     context: ./services/ml
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./services/ml:/app
-  #   depends_on:
-  #     - redis
-  #   command: poetry run python main.py
-
-  # celery_worker:
-  #   build:
-  #     context: ./services/backend
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./services/backend:/app
-  #   command: poetry run celery -A tasks worker --loglevel=info
-  #   depends_on:
-  #     - backend
-  #     - redis
-
-  # celery_beat:
-  #   build:
-  #     context: ./services/backend
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./services/backend:/app
-  #   command: poetry run celery -A tasks beat --loglevel=info
-  #   depends_on:
-  #     - backend
-  #     - redis
-  # flower:
-  #   build:
-  #     context: ./services/backend
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./services/backend:/app
-  #   command: poetry run celery -A tasks flower --port=5555
-  #   ports:
-  #     - "5555:5555"
-  #   depends_on:
-  #     - backend
-  #     - redis
-  #   environment:
-  #     - CELERY_BROKER_URL=redis://redis:6379/0
-  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`api.${HOST}`)"
+      - "traefik.http.routers.api.entrypoints=web"
+      - "traefik.http.services.api.loadbalancer.server.port=5000"
 
   db:
+    container_name: db
     image: postgres:15
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -93,32 +69,45 @@ services:
       timeout: 10s
       retries: 5
       start_period: 10s
-    ports:
-      - "5432:5432"
 
   redis:
+    container_name: redis
     image: redis:6
-    ports:
-      - "6379:6379"
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     command: redis-server --requirepass ${REDIS_PASSWORD}
 
-  # celery:
-  #   build:
-  #     context: ./services/backend
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./services/backend:/app
-  #   environment:
-  #     - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-  #     - CELERY_BROKER_URL=redis://redis:6379/0
-  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
-  #   depends_on:
-  #     - db
-  #     - redis
-  #   command: celery -A services.backend.celery_worker.celery worker --loglevel=info
-  #   working_dir: /app
+  celery_worker:
+    image: cr.yandex/crpc50gkvq2bp251sfgb/backend
+    build:
+      context: ./services/backend
+      dockerfile: Dockerfile
+    command: celery -A celery_worker.celery worker --loglevel=info
+    volumes:
+      - ./services/backend:/app
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
+    depends_on:
+      - db
+      - redis
+      - backend_app
+
+  ml:
+    image: cr.yandex/crpc50gkvq2bp251sfgb/ml
+    build:
+      context: ./services/ml
+      dockerfile: Dockerfile
+    environment:
+      FAISS_INDEX_PATH: /data/faiss_index
+    volumes:
+      - ./services/ml:/app
+      - ./services/ml/data:/data
+    depends_on:
+      - redis
+    ports:
+      - "3001:8080"
 
 volumes:
   postgres_data:
