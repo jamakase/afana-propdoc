@@ -1,9 +1,9 @@
-name: Backend CI workflow
+name: ML CI workflow
 on:
   push:
     paths:
-      - "services/backend/**"
-      - ".github/workflows/backend.yaml"
+      - "services/ml/**"
+      - ".github/workflows/ml.yaml"
     branches:
       - main
 
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./services/backend
+        working-directory: ./services/ml
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./services/backend
+        working-directory: ./services/ml
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
@@ -48,8 +48,8 @@ jobs:
           yc-sa-json-credentials: ${{ secrets.YANDEX_SA_KEY }}
       - run: |
           echo "Packaging docker image ..."
-          tag="${DOCKER_REGISTRY}/backend:${{ github.sha }}"
-          docker build -t $tag -t ${DOCKER_REGISTRY}/backend:latest .
-          docker push ${DOCKER_REGISTRY}/backend --all-tags
+          tag="${DOCKER_REGISTRY}/ml:${{ github.sha }}"
+          docker build -t $tag -t ${DOCKER_REGISTRY}/ml:latest .
+          docker push ${DOCKER_REGISTRY}/ml --all-tags
         env:
           DOCKER_REGISTRY: cr.yandex/crpc50gkvq2bp251sfgb
