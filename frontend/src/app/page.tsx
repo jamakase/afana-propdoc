@@ -41,18 +41,10 @@ export default function Home({ params }: { params: { id?: string } }) {
           setCurrentConversationId(initialConversationId);
           
           await loadMessagesForConversation(initialConversationId);
-
-          // Добавляем обновление URL
-          if (!params.id) {
-            window.history.pushState({}, '', `/${initialConversationId}`);
-          }
         } else {
           const newConversation = await handleAddConversation();
           setConversations([newConversation]);
           setCurrentConversationId(newConversation.id);
-          
-          // Добавляем обновление URL для нового чата
-          window.history.pushState({}, '', `/${newConversation.id}`);
         }
       } catch (error) {
         console.error('Ошибка при инициализации пользователя:', error);
@@ -159,6 +151,7 @@ export default function Home({ params }: { params: { id?: string } }) {
         setConversations(prevConversations => [...prevConversations, newConversation]);
         setCurrentConversationId(newConversation.id);
         setMessages([]);
+        window.history.pushState({}, '', `/${newConversation.id}`);
         return newConversation;
       } else {
         throw new Error('Не удалось создать новый чат');
@@ -251,19 +244,19 @@ export default function Home({ params }: { params: { id?: string } }) {
           <MessageList messages={messages} />
 
           <div className="p-4 bg-white">
-            <div className="flex items-stretch">
+            <div className="flex">
               <input
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Введите ваш вопрос"
-                className="flex-grow p-2 bg-[#EFF0F3] border border-gray-300 rounded-l-2xl focus:outline-none h-full"
+                className="flex-grow p-2 bg-[#EFF0F3] border border-gray-300 rounded-l-2xl focus:outline-none"
                 style={{ color: 'black' }}
               />
               <Button 
                 onClick={handleSendMessage}
-                className="rounded-r-2xl rounded-l-none bg-[#1D1F27] focus:outline-none cursor-pointer hover:bg-[#606371] border-l-0 h-full"
+                className="rounded-r-2xl bg-[#1D1F27] focus:outline-none cursor-pointer hover:bg-[#606371] -ml-px"
               >
                 Отправить
               </Button>

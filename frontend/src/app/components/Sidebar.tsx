@@ -64,44 +64,57 @@ export default function Sidebar({ conversations, currentConversationId, onConver
           <fieldset className="space-y-4">
             <AnimatePresence mode="popLayout">
               {conversations.map((conversation) => (
-                <Link
-                  href={`/${conversation.id}`}
+                <motion.div
                   key={conversation.id}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onConversationChange(conversation.id);
+                  layout // Добавляем это свойство
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ 
+                    duration: 0.3, 
+                    ease: "easeInOut",
+                    opacity: { duration: 0.2 },
+                    scale: { duration: 0.2 },
+                    layout: { duration: 0.3 } // Добавляем анимацию для layout
                   }}
                 >
-                  <label
-                    htmlFor={`chat-${conversation.id}`}
-                    className={`flex text-base mb-4 cursor-pointer items-center justify-between gap-4 rounded-lg border p-4 text-sm font-medium shadow-sm hover:border-[#E5A7ED] ${
-                      currentConversationId === conversation.id
-                      ? 'bg-[#D988E4] text-black'
-                      : 'bg-[#E6E8EF] text-black'
-                    }`}
+                  <Link
+                    href={`/${conversation.id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onConversationChange(conversation.id);
+                    }}
                   >
-                    <p>{conversation.name}</p>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        onDeleteConversation(conversation.id);
-                      }}
+                    <label
+                      htmlFor={`chat-${conversation.id}`}
+                      className={`flex text-base mb-4 cursor-pointer items-center justify-between gap-4 rounded-lg border p-4 text-sm font-medium shadow-sm hover:border-[#E5A7ED] ${
+                        currentConversationId === conversation.id
+                        ? 'bg-[#D988E4] text-black'
+                        : 'bg-[#E6E8EF] text-black'
+                      }`}
                     >
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        height="24" 
-                        viewBox="0 -960 960 960" 
-                        width="24" 
-                        fill="#898D9F"
-                        className="hover:fill-[#E5A7ED]"
+                      <p>{conversation.name}</p>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          onDeleteConversation(conversation.id);
+                        }}
                       >
-                        <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
-                      </svg>
-                    </button>
-                    
-                  </label>
-                </Link>
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          height="24" 
+                          viewBox="0 -960 960 960" 
+                          width="24" 
+                          fill="#898D9F"
+                          className="hover:fill-[#E5A7ED]"
+                        >
+                          <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
+                        </svg>
+                      </button>
+                    </label>
+                  </Link>
+                </motion.div>
               ))}
             </AnimatePresence>
           </fieldset>
