@@ -60,10 +60,13 @@ class MessageService:
     @staticmethod
     def get_message(conversation_id):
         messages = MessageModel.query.filter(MessageModel.conversation_id.in_([conversation_id])).all()
-        print("CONV_ID:", conversation_id)
-        if not messages:
-            return jsonify({'error': 'No messages found for these conversations'}), 404
 
+        if not messages:
+            return {
+                'messages': [
+                    {conversation_id: [{'task_id': None, 'id': None, 'role': None, 'text': None}]}
+                ]
+            }, 200
 
         grouped_messages = defaultdict(list)
         for message in messages:
