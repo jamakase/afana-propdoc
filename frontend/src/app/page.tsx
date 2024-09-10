@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { api } from './api';
 import Sidebar from './components/Sidebar';
 import MessageList from './components/MessageList';
+import { Button } from "@/components/ui/button"
 
 // Тип для хранения информации о чате
 type Conversation = {
@@ -13,7 +14,7 @@ type Conversation = {
 };
 
 // Основная функция компонента
-export default function Home() {
+export default function Home({ params }: { params: { id?: string } }) {
   // Состояния для хранения списка чатов, текущего чата и сообщений
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<number | null>(null);
@@ -24,7 +25,7 @@ export default function Home() {
   useEffect(() => {
     const initializeUser = async () => {
       try {
-        const response = await api.get_messages__user_id_();
+        const response = await api.getConversations();
         console.log('API response:', response);
         
         if (response.data && Array.isArray(response.data) && response.data.length > 0) {
@@ -35,13 +36,23 @@ export default function Home() {
           }));
           
           setConversations(formattedConversations);
-          setCurrentConversationId(formattedConversations[0].id);
           
-          await loadMessagesForConversation(formattedConversations[0].id);
+          const initialConversationId = params.id ? parseInt(params.id) : formattedConversations[0].id;
+          setCurrentConversationId(initialConversationId);
+          
+          await loadMessagesForConversation(initialConversationId);
+
+          // Добавляем обновление URL
+          if (!params.id) {
+            window.history.pushState({}, '', `/${initialConversationId}`);
+          }
         } else {
           const newConversation = await handleAddConversation();
           setConversations([newConversation]);
           setCurrentConversationId(newConversation.id);
+          
+          // Добавляем обновление URL для нового чата
+          window.history.pushState({}, '', `/${newConversation.id}`);
         }
       } catch (error) {
         console.error('Ошибка при инициализации пользователя:', error);
@@ -49,7 +60,7 @@ export default function Home() {
     };
 
     initializeUser();
-  }, []);
+  }, [params.id]);
 
   const handleSendMessage = async () => {
     if (!message.trim()) return;
@@ -131,6 +142,7 @@ export default function Home() {
       } else {
         setMessages(selectedConversation.messages);
       }
+      window.history.pushState({}, '', `/${id}`);
     }
   };
 
@@ -210,7 +222,6 @@ export default function Home() {
   return (
     <div className="min-h-screen relative overflow-hidden hide-scrollbar">
       <header className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#17153B] p-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white">AFANA</h1>
         {isSidebarOpen && (
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -222,6 +233,7 @@ export default function Home() {
           </button>
         )}
       </header>
+      
       <main className="flex h-screen pt-16 md:pt-0">
         <div className="fixed left-0 top-0 h-full md:relative">
           <Sidebar
@@ -239,27 +251,22 @@ export default function Home() {
           <MessageList messages={messages} />
 
           <div className="p-4 bg-white">
-            <div className="flex">
+            <div className="flex items-stretch">
               <input
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Введите ваш вопрос"
-                className="flex-grow p-2 bg-gray-300 border border-gray-300 rounded-l-2xl focus:outline-none"
+                className="flex-grow p-2 bg-[#EFF0F3] border border-gray-300 rounded-l-2xl focus:outline-none h-full"
                 style={{ color: 'black' }}
               />
-              <button
+              <Button 
                 onClick={handleSendMessage}
-                className="group w-auto inline-block text-center rounded-r-2xl
-                 bg-[#2E236C] p-[2px] focus:outline-none cursor-pointer select-none"
+                className="rounded-r-2xl rounded-l-none bg-[#1D1F27] focus:outline-none cursor-pointer hover:bg-[#606371] border-l-0 h-full"
               >
-                <span className="block rounded-r-2xl bg-[#17153B] px-6 py-3 text-sm font-medium group-hover:bg-transparent">
-                  <h2 className="text-sm text-white">
-                    Отправить
-                  </h2>
-                </span>
-              </button>
+                Отправить
+              </Button>
             </div>
           </div>
         </div>

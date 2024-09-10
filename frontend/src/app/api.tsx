@@ -27,14 +27,12 @@ export const api = {
         return response.json();
     },
 
-    async get_messages__user_id_() {
+    async getConversations() {
         const response = await fetch(`${API_URL}/conversations/get`, {
             method: 'POST',
             credentials: "include"
         });
-        const data = await response.json();
-        console.log(data);
-        return data;
+        return response.json();
     },
 
     async deleteConversation(conversationId: number) {
