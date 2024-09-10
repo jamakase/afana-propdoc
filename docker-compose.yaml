@@ -1,24 +1,25 @@
 version: '3.8'
 
 services:
-  # traefik:
-  #   image: traefik:v2.11
-  #   container_name: traefik
-  #   command:
-  #     - "--api.insecure=true"
-  #     - "--providers.docker=true"
-  #     - "--entrypoints.web.address=:80"
-  #     - "--entrypoints.websecure.address=:443"
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #     - "8080:8080"
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #     - ./data/ssl:/letsencrypt
-  #   restart: always
+  traefik:
+    image: traefik:v2.11
+    container_name: traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/ssl:/letsencrypt
+    restart: always
 
   frontend_app:
+    image: cr.yandex/crpc50gkvq2bp251sfgb/app
     container_name: frontend_app
     build:
       context: ./frontend
@@ -33,6 +34,7 @@ services:
 
   backend_app:
     restart: unless-stopped
+    image: cr.yandex/crpc50gkvq2bp251sfgb/backend
     build:
       context: ./services/backend
       dockerfile: Dockerfile
@@ -99,6 +101,7 @@ services:
       - backend_app
 
   ml:
+    image: cr.yandex/crpc50gkvq2bp251sfgb/ml
     build:
       context: ./services/ml
       dockerfile: Dockerfile
