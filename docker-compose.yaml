@@ -113,7 +113,7 @@ services:
     depends_on:
       - redis
     ports:
-      - "3001:8080"
+      - "3001:8000"
 
 volumes:
   postgres_data:
