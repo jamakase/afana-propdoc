@@ -4,6 +4,9 @@ init:
 up:
 	docker compose up
 
+up-ollama:
+	docker compose -f docker-compose.ollama.yaml up
+
 run-detached:
 	docker compose up -d
 
