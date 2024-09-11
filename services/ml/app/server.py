@@ -7,6 +7,8 @@ from .config import config
 from packages.retriever import Retriever
 from packages.prompts import prompt
 
+import os
+
 faiss_index_path = config.FAISS_INDEX_PATH
 
 # Create a ChatOllama instance with the llama2 model
@@ -20,13 +22,14 @@ if config.USE_OPENROUTER:
         base_url="https://openrouter.ai/api/v1",
         max_tokens=1000,
     )
-    embeddings = HuggingFaceEmbeddings(model_name=config.EMBEDDING_MODEL)
+    cache_folder = os.path.join(os.getcwd(), "model_cache")
+    embeddings = HuggingFaceEmbeddings(model_name=config.EMBEDDING_MODEL, cache_folder=cache_folder)
 else:
     from langchain_community.chat_models import ChatOllama
     from langchain_community.embeddings import OllamaEmbeddings
 
-    llm = ChatOllama(model=config.MODEL)
-    embeddings = OllamaEmbeddings(model=config.MODEL)
+    llm = ChatOllama(model=config.MODEL, base_url=config.OLLAMA_HOST)
+    embeddings = OllamaEmbeddings(model=config.MODEL, base_url=config.OLLAMA_HOST)
 
 retriever_instance = Retriever(embeddings, faiss_index_path)
 

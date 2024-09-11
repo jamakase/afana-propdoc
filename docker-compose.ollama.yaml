@@ -109,6 +109,9 @@ services:
       dockerfile: Dockerfile
     environment:
       FAISS_INDEX_PATH: /data/faiss_index
+      OLLAMA_HOST: http://ollama:11434
+      USE_OPENROUTER: false
+      MODEL: llama3.1
     volumes:
       - ./services/ml:/app
       - ./services/ml/data:/data
@@ -119,5 +122,23 @@ services:
     ports:
       - "3001:8000"
 
+  ollama:  # Add this new service
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "7869:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    volumes:
+      - ollama_data:/root/.ollama
+    entrypoint: >
+      sh -c "
+        ollama serve &
+        sleep 10 &&
+        ollama run llama3.1 &
+        wait
+      "
+
 volumes:
   postgres_data:
+  ollama_data:
