@@ -4,8 +4,6 @@ from celery import shared_task, Task
 from services.message_service import MessageService, SaveMessageOptions, Role
 
 rag_url = os.environ.get('HOST')
-print("URL", rag_url)
-
 
 class QuestionTask(Task):
     def before_start(self, task_id, args, kwargs):
