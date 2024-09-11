@@ -31,6 +31,7 @@ module "app" {
     CELERY_BROKER_URL       = "redis://:password@redis:6379/0"
     CELERY_RESULT_BACKEND   = "redis://:password@redis:6379/0"
     OPENROUTER_API_KEY = "a"
+    QDRANT_API_KEY = "somwerhjsadimqwe"
   })
   ssh_key = local.ssh
   network_id = module.net.vpc_id

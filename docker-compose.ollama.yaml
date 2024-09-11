@@ -111,7 +111,7 @@ services:
     environment:
       FAISS_INDEX_PATH: /data/faiss_index
       OLLAMA_HOST: http://ollama:11434
-      USE_OPENROUTER: false
+      LLM_SOURCE: ollama
       MODEL: llama3.1
     volumes:
       - ./services/ml:/app

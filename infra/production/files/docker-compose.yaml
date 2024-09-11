@@ -19,20 +19,24 @@ services:
       - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./data/ssl:/letsencrypt
+      - /home/yc-user/data/ssl:/letsencrypt
     restart: always
 
   frontend_app:
     image: cr.yandex/crpc50gkvq2bp251sfgb/app:latest
     pull_policy: always
     environment:
-      - API_URL=https://api.${HOST}
+      - API_URL=https://api-afana.${HOST}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.app.rule=Host(`${HOST}`)"
+      - "traefik.http.routers.app.rule=Host(`app.${HOST}`)"
       - "traefik.http.routers.app.entrypoints=websecure"
       - "traefik.http.routers.app.tls.certresolver=myresolver"
       - "traefik.http.services.app.loadbalancer.server.port=3000"
+      - "traefik.http.routers.app-http.rule=Host(`app.${HOST}`)"
+      - "traefik.http.routers.app-http.entrypoints=web"
+      - "traefik.http.routers.app-http.middlewares=app-https-redirect"
+      - "traefik.http.middlewares.app-https-redirect.redirectscheme.scheme=https"
 
   backend_app:
     pull_policy: always
@@ -57,7 +61,7 @@ services:
       - redis
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`api.${HOST}`)"
+      - "traefik.http.routers.api.rule=Host(`api-afana.${HOST}`)"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls.certresolver=myresolver"
       - "traefik.http.services.api.loadbalancer.server.port=5000"
@@ -66,7 +70,7 @@ services:
     container_name: db
     image: postgres:15
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - /home/yc-user/data/postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -98,17 +102,33 @@ services:
       - redis
       - backend_app
 
-  # ml:
-  #   image: cr.yandex/crpc50gkvq2bp251sfgb/ml
-  #   environment:
-  #     FAISS_INDEX_PATH: /data/faiss_index
-  #   volumes:
-  #     - model_cache:/app/model_cache
-  #   depends_on:
-  #     - redis
-  #   ports:
-  #     - "3001:8080"
+  ml:
+    container_name: ml
+    image: cr.yandex/crpc50gkvq2bp251sfgb/ml
+    environment:
+      FAISS_INDEX_PATH: /data/faiss_index
+      USE_OPENROUTER: false
+    volumes:
+      - /home/yc-user/model_cache:/app/model_cache
+      - /home/yc-user/index_faiss:/data/faiss_index
+    depends_on:
+      - redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ml.rule=Host(`ml.${HOST}`)"
+      - "traefik.http.routers.ml.entrypoints=web"
+      - "traefik.http.services.ml.loadbalancer.server.port=8000"
 
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - /home/yc-user/data/qdrant:/qdrant/storage
+    environment:
+      QDRANT_API_KEY: ${QDRANT_API_KEY}
+      QDRANT_ENABLE_DASHBOARD: "true"
 volumes:
-  postgres_data:
+  # postgres_data:
   model_cache:

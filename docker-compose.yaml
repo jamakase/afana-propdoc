@@ -110,7 +110,10 @@ services:
       dockerfile: Dockerfile
     environment:
       FAISS_INDEX_PATH: /data/faiss_index
-      EMBEDDING_MODEL: sentence-transformers/all-mpnet-base-v2
+      LLM_SOURCE: ollama
+      OLLAMA_HOST: http://localhost:11434
+      MODEL_NAME: llama3.1
+      # EMBEDDING_MODEL: sentence-transformers/all-mpnet-base-v2
     volumes:
       - ./services/ml:/app
       - ./services/ml/data:/data
