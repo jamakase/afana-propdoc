@@ -14,6 +14,8 @@ from routes.conversation.get_conversations import get_conversation
 
 broker_url = os.environ.get('BROKER_URL')
 result_backend = os.environ.get('RESULT_BACKEND')
+rag_url = os.environ.get('HOST')
+
 
 def create_app():
     app = Flask(__name__)

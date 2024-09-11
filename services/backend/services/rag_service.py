@@ -1,11 +1,10 @@
-import time
-
+import os
 import requests
 from celery import shared_task, Task
-
 from services.message_service import MessageService, SaveMessageOptions, Role
 
-rag_url = 'http://127.0.0.1:5001/process'
+rag_url = os.environ.get('HOST')
+print("URL", rag_url)
 
 
 class QuestionTask(Task):
@@ -23,11 +22,12 @@ class QuestionTask(Task):
 
     def on_success(self, retval, task_id, args, kwargs):
         print('on_success called')
+        print(retval)
 
         message = MessageService.from_task_id(task_id).model
 
         MessageService.save_message(
-            SaveMessageOptions(text=retval['answer'], task_id=task_id, conversation_id=message.conversation_id, role=Role.SYSTEM)
+            SaveMessageOptions(text=retval['output']['result'], task_id=task_id, conversation_id=message.conversation_id, role=Role.SYSTEM)
         )
 
         super().on_success(retval, task_id, args, kwargs)
@@ -41,23 +41,21 @@ class RagService:
 
 @shared_task(base = QuestionTask,ignore_result=False)
 def run_question_task(question: str):
+
     try:
 
-        time.sleep(5)
-
-        return {
-            'question': question,
-            'status': 'Super status',
-            'answer': 'Ответ на вопрос:  ' + question
+        data = {
+            "input":{
+                "question": "Какие документы по строительству объектов есть в базе?",
+                "context": "Контекст"
+            }
         }
+        response = requests.post(rag_url, json=data)
+        response.raise_for_status()
 
-        # data = {"question": question}
-        # response = requests.post(rag_url, json=data)
-        # response.raise_for_status()
-        #
-        # result = response.json()
-        #
-        # return result
+        result = response.json()
+
+        return result
 
     except requests.exceptions.RequestException as e:
         return {'error': str(e)}
