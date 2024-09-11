@@ -118,11 +118,11 @@ services:
       - ./.model_cache:/app/model_cache
     depends_on:
       - redis
-      - ollama  # Add this line
+      - ollama
     ports:
       - "3001:8000"
 
-  ollama:  # Add this new service
+  ollama:
     image: ollama/ollama:latest
     container_name: ollama
     ports:

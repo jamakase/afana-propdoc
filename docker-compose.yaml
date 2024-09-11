@@ -109,13 +109,13 @@ services:
       dockerfile: Dockerfile
     environment:
       FAISS_INDEX_PATH: /data/faiss_index
+      EMBEDDING_MODEL: sentence-transformers/all-mpnet-base-v2
     volumes:
       - ./services/ml:/app
       - ./services/ml/data:/data
       - ./.model_cache:/app/model_cache
     depends_on:
       - redis
-      - ollama  # Add this line
     ports:
       - "3001:8000"
 
