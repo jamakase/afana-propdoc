@@ -47,6 +47,7 @@ export const api = {
             method: 'GET',
             credentials: "include"
         });
-        return response.json();
-    },
+        const data = await response.json();
+        console.log(data);
+        return data;    },
 };

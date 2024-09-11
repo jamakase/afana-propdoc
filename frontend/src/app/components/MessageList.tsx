@@ -1,4 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { ScrollArea } from "@/components/ui/scroll-area"
+
 
 type Message = {
     id: number;
@@ -12,7 +14,7 @@ type MessageListProps = {
 
 export default function MessageList({ messages }: MessageListProps) {
     return (
-        <div className="flex-1 p-4 overflow-y-auto bg-white">
+        <ScrollArea className="flex-1 p-4 overflow-y-auto bg-white">
             <AnimatePresence>
                 {messages.map((msg) => (
                     <motion.div
@@ -24,13 +26,13 @@ export default function MessageList({ messages }: MessageListProps) {
                         className={`mb-4 ${msg.sender === 'user' ? 'flex justify-end' : ''}`}
                     >
                         <div className={`inline-block p-2 rounded-lg max-w-[70%] break-words ${
-                            msg.sender === 'user' ? 'bg-[#9400FF] text-white text-left' : 'bg-gray-300 text-black text-justify'
+                            msg.sender === 'user' ? 'bg-[#D958E4] text-white text-left' : 'bg-[#CDCED7] text-black text-justify'
                         }`}>
                             {msg.text}
                         </div>
                     </motion.div>
                 ))}
             </AnimatePresence>
-        </div>
+        </ScrollArea>
     );
 }
