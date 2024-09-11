@@ -3,3 +3,4 @@
 instance/
 
 .pyc
+.model_cache
