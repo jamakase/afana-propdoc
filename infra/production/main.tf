@@ -21,7 +21,7 @@ module "app" {
 
     APP_SECRET_KEY = "_5#y2L\"F4Q8z\\n\\xec]/"
 
-    ACCESS_CONTROL_ALLOW_ORIGIN = "http://localhost:8080"
+    ACCESS_CONTROL_ALLOW_ORIGIN = "http://banzai-team.ru:8080"
 
     BROKER_URL      = "redis://redis"
     RESULT_BACKEND  = "redis://redis"
@@ -30,12 +30,14 @@ module "app" {
 
     CELERY_BROKER_URL       = "redis://:password@redis:6379/0"
     CELERY_RESULT_BACKEND   = "redis://:password@redis:6379/0"
-    HOST                    = "localhost"
+    OPENROUTER_API_KEY = "a"
   })
   ssh_key = local.ssh
   network_id = module.net.vpc_id
   subnet_id = module.net.public_subnets["10.121.0.0/16"].subnet_id
   nat_ip_address = yandex_vpc_address.addr.external_ipv4_address[0].address
 
-  core_fraction = 20
+  core_fraction = 100
+  memory = 12
+  cpu = 4
 }

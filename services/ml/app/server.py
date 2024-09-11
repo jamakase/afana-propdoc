@@ -23,7 +23,9 @@ if config.USE_OPENROUTER:
         max_tokens=1000,
     )
     cache_folder = os.path.join(os.getcwd(), "model_cache")
-    embeddings = HuggingFaceEmbeddings(model_name=config.EMBEDDING_MODEL, cache_folder=cache_folder)
+    embeddings = HuggingFaceEmbeddings(
+        model_name=config.EMBEDDING_MODEL, cache_folder=cache_folder
+    )
 else:
     from langchain_community.chat_models import ChatOllama
     from langchain_community.embeddings import OllamaEmbeddings
