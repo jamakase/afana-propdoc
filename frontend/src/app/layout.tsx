@@ -3,6 +3,7 @@ import { Roboto_Mono } from "next/font/google";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ConfigProvider } from "@/domain/config/ConfigProvider";
+import { headers } from "next/headers";
 
 const robotoMono = Roboto_Mono({ subsets: ["latin", "cyrillic"], weight: ['400', '700'], display: 'swap' });
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
@@ -15,13 +16,17 @@ export const metadata: Metadata = {
   },
 };
 
-const config = { ENDPOINT: process.env.API_URL ?? 'http://localhost:5000' };
-
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+    // Force dynamic rendering
+    headers();
+
+    const config = { ENDPOINT: process.env.API_URL ?? 'http://localhost:5000' };
+  
   return (
     <html lang="en">
       <head>
