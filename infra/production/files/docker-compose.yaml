@@ -9,6 +9,10 @@ services:
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=jamakase54@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
       - "80:80"
       - "443:443"
@@ -19,39 +23,43 @@ services:
     restart: always
 
   frontend_app:
-    image: cr.yandex/crpc50gkvq2bp251sfgb/app
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: cr.yandex/crpc50gkvq2bp251sfgb/app:latest
+    pull_policy: always
     environment:
-      - API_URL=http://api.${HOST}
+      - API_URL=https://api.${HOST}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.app.rule=Host(`${HOST}`)"
-      - "traefik.http.routers.app.entrypoints=web"
+      - "traefik.http.routers.app.entrypoints=websecure"
+      - "traefik.http.routers.app.tls.certresolver=myresolver"
       - "traefik.http.services.app.loadbalancer.server.port=3000"
 
   backend_app:
+    pull_policy: always
     image: cr.yandex/crpc50gkvq2bp251sfgb/backend
     restart: unless-stopped
-    build:
-      context: ./services/backend
-      dockerfile: Dockerfile
-    env_file:
-      - .env
-    volumes:
-      - ./services/backend:/app
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - APP_SECRET_KEY=${APP_SECRET_KEY}
+      - ACCESS_CONTROL_ALLOW_ORIGIN=${ACCESS_CONTROL_ALLOW_ORIGIN}
+      - BROKER_URL=${BROKER_URL}
+      - RESULT_BACKEND=${RESULT_BACKEND}
+      - DATABASE_URL=${DATABASE_URL}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - HOST=${HOST}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
     depends_on:
       - db
       - redis
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`api.${HOST}`)"
-      - "traefik.http.routers.api.entrypoints=web"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls.certresolver=myresolver"
       - "traefik.http.services.api.loadbalancer.server.port=5000"
 
   db:
@@ -79,12 +87,8 @@ services:
 
   celery_worker:
     image: cr.yandex/crpc50gkvq2bp251sfgb/backend
-    build:
-      context: ./services/backend
-      dockerfile: Dockerfile
-    command: celery -A celery_worker.celery worker --loglevel=info
-    volumes:
-      - ./services/backend:/app
+    pull_policy: always
+    entrypoint: celery -A celery_worker.celery worker --loglevel=info
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
@@ -94,20 +98,17 @@ services:
       - redis
       - backend_app
 
-  ml:
-    image: cr.yandex/crpc50gkvq2bp251sfgb/ml
-    build:
-      context: ./services/ml
-      dockerfile: Dockerfile
-    environment:
-      FAISS_INDEX_PATH: /data/faiss_index
-    volumes:
-      - ./services/ml:/app
-      - ./services/ml/data:/data
-    depends_on:
-      - redis
-    ports:
-      - "3001:8080"
+  # ml:
+  #   image: cr.yandex/crpc50gkvq2bp251sfgb/ml
+  #   environment:
+  #     FAISS_INDEX_PATH: /data/faiss_index
+  #   volumes:
+  #     - model_cache:/app/model_cache
+  #   depends_on:
+  #     - redis
+  #   ports:
+  #     - "3001:8080"
 
 volumes:
   postgres_data:
+  model_cache:
