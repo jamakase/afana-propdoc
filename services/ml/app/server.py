@@ -8,11 +8,8 @@ from packages.llm import LLMInstance
 from packages.retriever import Retriever
 from packages.prompts import prompt
 
-
-faiss_index_path = config.FAISS_INDEX_PATH
-
-llm_instance = LLMInstance()
-retriever_instance = Retriever(llm_instance.get_embeddings(), faiss_index_path)
+llm_instance = LLMInstance(config)
+retriever_instance = Retriever(llm_instance.get_embeddings(), config.QDRANT_HOST, config.QDRANT_COLLECTION_NAME)
 
 # Create a RetrievalQA chain
 qa_chain = RetrievalQA.from_chain_type(
