@@ -120,8 +120,16 @@ services:
     depends_on:
       - redis
       - ollama
+      - qdrant
     ports:
       - "3001:8000"
+
+  qdrant:
+    image: qdrant/qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - ./.cache/qdrant:/data
 
   ollama:
     image: ollama/ollama:latest

@@ -9,7 +9,7 @@ from packages.retriever import Retriever
 from packages.prompts import prompt
 
 llm_instance = LLMInstance(config)
-retriever_instance = Retriever(llm_instance.get_embeddings(), config.QDRANT_HOST, config.QDRANT_COLLECTION_NAME)
+retriever_instance = Retriever(llm_instance.get_embeddings(), host=config.QDRANT_HOST, collection_name=config.QDRANT_COLLECTION_NAME)
 
 # Create a RetrievalQA chain
 qa_chain = RetrievalQA.from_chain_type(
