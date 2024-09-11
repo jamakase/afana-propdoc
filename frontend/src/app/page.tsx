@@ -29,7 +29,6 @@ export default function Home({ params }: { params: { id?: string } }) {
   useEffect(() => {
     const initializeUser = async () => {
       try {
-        const response = await api.getConversations();
         const response = await api.get_messages__user_id_(config.ENDPOINT);
         console.log('API response:', response);
 
