@@ -11,6 +11,7 @@ from routes.conversation.create_conversation import  create_conversation
 from routes.message.get_message import get_user_messages
 from routes.conversation.delete_conversation import delete_message
 from routes.conversation.get_conversations import get_conversation
+from routes.message.upload_file import send_message_with_file
 
 broker_url = os.environ.get('BROKER_URL')
 result_backend = os.environ.get('RESULT_BACKEND')
@@ -47,6 +48,7 @@ def create_app():
     app.add_url_rule('/message', view_func=send_message, methods=['POST'])
     app.add_url_rule('/conversation/create', view_func=create_conversation, methods=['POST'])
     app.add_url_rule('/conversations/get', view_func=get_conversation, methods=['POST'])
+    app.add_url_rule('/message/upload', view_func=send_message_with_file, methods=['POST'])
     app.add_url_rule('/task/<id>', view_func=task_result, methods=['GET'])
     app.add_url_rule('/messages/<conversation_id>', view_func=get_user_messages, methods=['GET'])
     app.add_url_rule('/conversation/delete/<conversation_id>', view_func=delete_message, methods=['DELETE'])

@@ -1,7 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
 from enum import Enum
-from flask import jsonify
+from typing import Optional
 from models import db
 from models.message_model import MessageModel
 
@@ -16,6 +16,7 @@ class SaveMessageOptions:
     conversation_id: int
     task_id: str
     role: Role = Role.SYSTEM
+    file_id: Optional[int] = None
 
 
 class MessageService:
@@ -39,7 +40,8 @@ class MessageService:
             text = options.text,
             conversation_id = options.conversation_id,
             task_id = options.task_id,
-            role = options.role.value
+            role = options.role.value,
+            file_id = options.file_id
         )
 
         db.session.add(new_message)
