@@ -89,7 +89,7 @@ services:
     build:
       context: ./services/backend
       dockerfile: Dockerfile
-    command: celery -A celery_worker.celery worker --loglevel=info
+    entrypoint: celery -A celery_worker.celery worker --loglevel=info
     volumes:
       - ./services/backend:/app
     environment:
