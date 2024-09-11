@@ -18,19 +18,19 @@ services:
       - ./data/ssl:/letsencrypt
     restart: always
 
-  # frontend_app:
-  #   image: cr.yandex/crpc50gkvq2bp251sfgb/app
-  #   container_name: frontend_app
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   environment:
-  #     - API_URL=http://api.${HOST}
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.app.rule=Host(`${HOST}`)"
-  #     - "traefik.http.routers.app.entrypoints=web"
-  #     - "traefik.http.services.app.loadbalancer.server.port=3000"
+  frontend_app:
+    image: cr.yandex/crpc50gkvq2bp251sfgb/app
+    container_name: frontend_app
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      - API_URL=http://api.${HOST}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=Host(`${HOST}`)"
+      - "traefik.http.routers.app.entrypoints=web"
+      - "traefik.http.services.app.loadbalancer.server.port=3000"
 
   backend_app:
     restart: unless-stopped
@@ -50,7 +50,7 @@ services:
       - db
       - redis
     ports:
-      - 5000:5000
+      - 5001:5000
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`api.${HOST}`)"
@@ -85,11 +85,11 @@ services:
     command: redis-server --requirepass ${REDIS_PASSWORD}
 
   celery_worker:
-    image: cr.yandex/crpc50gkvq2bp251sfgb/backend
+    image: cr.yandex/crpc50vq2bp251sfgb/backend
     build:
       context: ./services/backend
-      dockerfile: Dockerfile
-    entrypoint: celery -A celery_worker.celery worker --loglevel=info
+      dockerfile: Dockerfile-celery
+    entrypoint: watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery -A celery_worker.celery worker --loglevel=info
     volumes:
       - ./services/backend:/app
     environment:
@@ -110,15 +110,43 @@ services:
       dockerfile: Dockerfile
     environment:
       FAISS_INDEX_PATH: /data/faiss_index
-      EMBEDDING_MODEL: sentence-transformers/all-mpnet-base-v2
+      OLLAMA_HOST: http://ollama:11434
+      USE_OPENROUTER: false
+      MODEL: llama3.1
     volumes:
       - ./services/ml:/app
       - ./services/ml/data:/data
       - ./.model_cache:/app/model_cache
     depends_on:
       - redis
+      - ollama
     ports:
       - "3001:8000"
 
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "7869:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    volumes:
+      - ollama_data:/root/.ollama
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    entrypoint: >
+      sh -c "
+        ollama serve &
+        sleep 10 &&
+        ollama run llama3.1 &
+        wait
+      "
+
 volumes:
   postgres_data:
+  ollama_data:

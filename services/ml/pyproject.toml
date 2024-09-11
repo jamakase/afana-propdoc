@@ -23,7 +23,6 @@ langchain-cli = ">=0.0.15"
 
 [tool.poetry.scripts]
 start-server = "uvicorn app.server:app --host 0.0.0.0 --port 8000 --reload"
-dev = "langchain serve"
 
 [build-system]
 requires = ["poetry-core"]
