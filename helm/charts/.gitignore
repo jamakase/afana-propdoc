@@ -1,0 +1,26 @@
+# Ignore Helm chart dependencies
+charts/*/charts/
+
+# Ignore packaged Helm charts
+*.tgz
+
+# Ignore Helm chart lock files
+Chart.lock
+
+# Ignore Helm chart values files (optional, if you don't want to version control these)
+# values.yaml
+
+# Ignore temporary files created by Helm
+.helm/
+
+# Ignore rendered templates
+templates/*.yaml
+
+# Ignore Helm release information
+releases/
+
+# Ignore Helm plugin cache
+.cache/
+
+# Ignore any local Helm configuration
+.helmignore

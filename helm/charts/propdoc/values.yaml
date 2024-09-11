@@ -1,0 +1,138 @@
+## @section Global Parameters
+
+##  global -- Global params that are overwritten with umbrella chart
+global:
+
+propdoc-frontend:
+  enabled: true
+  extraEnv:
+    - name: API_URL
+      value: https://propdoc-api.banzai-predict.site
+    - name: KEYCLOAK_CLIENT_ID
+      value: webapp
+    - name: KEYCLOAK_AUTHORITY
+      value: https://propdoc-auth.banzai-predict.site/realms/propdoc-mrkt
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: traefik
+    hosts:
+      - host: ${HOST}
+        paths:
+          - path: /
+            pathType: Prefix
+
+propdoc-ml:
+  config:
+    MODEL_URL: https://propdoc-model-storage.obs.ru-moscow-1.hc.sbercloud.ru/models.zip
+  service:
+    port: 8080
+  enabled: true
+  extraEnv:
+    - name: LLM_SOURCE
+      value: ollama
+    - name: OLLAMA_HOST
+      value: http://ollama:11434
+    - name: MODEL_NAME
+      value: llama3.1
+    - name: QDRANT_HOST
+      value: http://qdrant:6333
+
+propdoc-backend:
+  enabled: true
+  config:
+    SERVER_PORT: 8080
+
+    RMQ_FEEDBACK_QUEUE: feedback-queue
+    RMQ_BEHAVIOR_QUEUE: behavior-queue
+    RMQ_FEEDBACK_POST_QUEUE: feedback-post-queue
+    RMQ_FEEDBACK_RESPONSE_QUEUE: feedback-response-queue
+    DB_HOST: propdoc-model-behavior-postgresql
+    DB_NAME: model-behavior
+    DB_PORT: "5432"
+    DB_USERNAME: app
+    DB_PASSWORD: password
+
+    RMQ_HOST: rabbitmq.rabbitmq
+    RMQ_PORT: 5672
+    RMQ_USERNAME: user
+    RMQ_PASSWORD: pass
+    MODEL_URL: "propdoc-ml-service.propdoc-ml-service:8080/v1"
+
+  service:
+    port: 8080
+
+  postgresql:
+    primary:
+      persistence:
+        enabled: true
+        size: 2Gi
+    auth:
+      database: model-behavior
+      password: "password"
+      username: "app"
+
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: traefik
+    hosts:
+      - host: api.${HOST}
+        paths:
+          - path: /
+            pathType: Prefix
+  extraEnv:
+    - name: DATABASE_URL
+      value: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgresql:5432/${POSTGRES_DB}
+    - name: CELERY_BROKER_URL
+      value: redis://:${REDIS_PASSWORD}@redis:6379/0
+    - name: CELERY_RESULT_BACKEND
+      value: redis://:${REDIS_PASSWORD}@redis:6379/0
+
+propdoc-model-interceptor:
+  config:
+    SERVER_PORT: 8080
+    RMQ_HOST: rabbitmq.rabbitmq
+    RMQ_PORT: 5672
+    RMQ_USERNAME: user
+    RMQ_PASSWORD: pass
+    RMQ_ROUTING_KEY: behavior-queue
+    MODEL_URL: "propdoc-ml-service.propdoc-ml-service:8080/v1"
+  service:
+    port: 8080
+  enabled: true
+
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: ${REDIS_PASSWORD}
+
+# New charts to add
+traefik:
+  enabled: true
+  ports:
+    web:
+      port: 80
+    websecure:
+      port: 443
+  dashboard:
+    enabled: true
+    port: 8080
+
+postgresql:
+  enabled: true
+  auth:
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    database: ${POSTGRES_DB}
+  primary:
+    persistence:
+      enabled: true
+      size: 8Gi
+
+qdrant:
+  enabled: true
+  persistence:
+    enabled: true
+    size: 8Gi
