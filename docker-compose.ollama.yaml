@@ -50,7 +50,7 @@ services:
       - db
       - redis
     ports:
-      - 5000:5000
+      - 5001:5000
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`api.${HOST}`)"

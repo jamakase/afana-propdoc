@@ -16,3 +16,13 @@ variable "ssh_key_file" {
   type    = string
   default = null
 }
+
+variable "openai_api_key" {
+  type = string
+  sensitive = true
+}
+
+variable "qdrant_api_key" {
+  type = string
+  sensitive = true
+}

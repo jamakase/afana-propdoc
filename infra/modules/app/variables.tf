@@ -63,3 +63,15 @@ variable "nat_ip_address" {
   description = "NAT IP address"
   type        = string
 }
+
+variable "boot_disk_size" {
+  description = "Boot disk size"
+  type        = number
+  default     = 15
+}
+
+variable "service_account_id" {
+  description = "Service account ID"
+  type        = string
+  default     = null
+}
