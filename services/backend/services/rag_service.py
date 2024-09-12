@@ -52,7 +52,7 @@ class QuestionTaskWithFile(Task):
         message = MessageService.from_task_id(task_id).model
 
         MessageService.save_message(
-            SaveMessageOptions(text=retval['result'], task_id=task_id, conversation_id=message.conversation_id, role=Role.SYSTEM, file_id = retval['file_id'])
+            SaveMessageOptions(text=retval['output']['result'], task_id=task_id, conversation_id=message.conversation_id, role=Role.SYSTEM, file_id = retval['file_id'])
         )
 
         super().on_success(retval, task_id, args, kwargs)
@@ -92,9 +92,11 @@ def run_question_task(question: str):
 def run_file_question_task(file_id, file_path, question: str) -> dict:
     try:
         result = {
+            "output":{
             "result": f'Ответ на вопрос с файлом: {question}',
             "file_id": file_id,
             "file_path": file_path
+            }
         }
 
         json.dumps(result)
