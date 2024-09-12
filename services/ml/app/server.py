@@ -4,7 +4,7 @@ from langserve import add_routes
 from packages.llm import LLMInstance
 from packages.prompts import prompt
 from packages.retriever import Retriever
-from pydantic import BaseModel, Field
+from langchain_core.pydantic_v1 import BaseModel, Field, validator
 from langchain_core.output_parsers import StrOutputParser
 
 from .config import config
@@ -13,18 +13,19 @@ llm_instance = LLMInstance(config)
 retriever_instance = Retriever(llm_instance.get_embeddings(), host=config.QDRANT_HOST, collection_name=config.QDRANT_COLLECTION_NAME)
 
 
-class BaseInputChat(BaseModel):
-    class Config:
-        arbitrary_types_allowed = True
-
-class InputChat(BaseInputChat):
-    # model_config = ConfigDict(arbitrary_types_allowed=True)
+class InputChat(BaseModel):
     """Input for the chat endpoint."""
     query: str = Field(..., description="The query to retrieve relevant documents.")
-    # messages: List[Union[HumanMessage, AIMessage, SystemMessage]] = Field(
-    #     ...,
-    #     description="The chat messages representing the current conversation.",
-    # )
+
+class OutputChat(BaseModel):
+    """Output for the chat endpoint."""
+    output: dict = Field(..., description="The output containing the result.")
+
+    @validator('output')
+    def check_output_structure(cls, v):
+        if not isinstance(v, dict) or 'result' not in v:
+            raise ValueError("output must be a dict with a 'result' key")
+        return v
 
 
 # Modify the qa_chain definition
@@ -35,7 +36,8 @@ qa_chain = (
     | prompt
     | llm_instance.get_llm()
     | StrOutputParser()
-)
+    | (lambda x: {"output": {"result": x}})
+).with_types(input_type=InputChat, output_type=OutputChat)
 
 
 app = FastAPI(
