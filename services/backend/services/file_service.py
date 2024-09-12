@@ -1,7 +1,5 @@
 import os
-
 from werkzeug.utils import secure_filename
-
 from models import db
 from models.file_model import FileModel
 
