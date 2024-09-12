@@ -35,6 +35,7 @@ module "app" {
     CELERY_RESULT_BACKEND   = "redis://:password@redis:6379/0"
     OPENROUTER_API_KEY = "a"
     QDRANT_API_KEY = var.qdrant_api_key
+    QDRANT_COLLECTION_NAME = "new_docs"
     OPENAI_API_KEY = var.openai_api_key
     YC_API_KEY = yandex_iam_service_account_api_key.instance_service_account_api_key.secret_key
     FOLDER_ID = var.folder_id

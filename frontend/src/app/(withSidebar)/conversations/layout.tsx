@@ -20,7 +20,8 @@ export default function RootLayout({
   const createConversationMutation = useMutation({
     mutationFn: () => api.createConversation(config.ENDPOINT),
     onSuccess: (response: any) => {
-      router.push(`/conversations/${response.data.id}`);
+      console.log(response);
+      router.push(`/conversations/${response.conversation_id}`);
     },
   });
 

@@ -66,11 +66,12 @@ services:
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls.certresolver=myresolver"
       - "traefik.http.services.api.loadbalancer.server.port=5000"
-      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=https://app.${HOST}"
+      - "traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist=https://app.${HOST},http://localhost:3001"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowheaders=Content-Type,Authorization"
       - "traefik.http.middlewares.cors.headers.accesscontrolmaxage=100"
       - "traefik.http.middlewares.cors.headers.addvaryheader=true"
+      - "traefik.http.middlewares.cors.headers.accesscontrolallowcredentials=true"
       - "traefik.http.routers.api.middlewares=cors"
 
   db:
@@ -104,6 +105,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - HOST=http://ml:8000/invoke
     depends_on:
       - db
       - redis
@@ -116,6 +118,7 @@ services:
     environment:
       LLM_SOURCE: openai
       QDRANT_HOST: http://qdrant:6333
+      QDRANT_COLLECTION_NAME: ${QDRANT_COLLECTION_NAME}
       QDRANT_API_KEY: ${QDRANT_API_KEY}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
 

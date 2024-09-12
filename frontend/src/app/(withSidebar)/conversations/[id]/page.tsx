@@ -3,11 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { api } from "@/domain/api/api";
 import { useConfig } from "@/domain/config/ConfigProvider";
-import { useRouter } from "next/navigation";
+import { Send } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import MessageList from "../../../_components/MessageList";
-import { Send } from "lucide-react";
 
 // Тип для хранения информации о чате
 type Conversation = {
@@ -23,10 +22,8 @@ export default function ConversationPage({
   params: { id: string };
 }) {
   const [message, setMessage] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const config = useConfig();
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   const { data: currentConversation } = useQuery(
