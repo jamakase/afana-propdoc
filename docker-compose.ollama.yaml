@@ -100,7 +100,7 @@ services:
     depends_on:
       - db
       - redis
-      - backend_app
+      - ml
 
   ml:
     restart: unless-stopped
@@ -109,8 +109,8 @@ services:
       context: ./services/ml
       dockerfile: Dockerfile
     environment:
-      FAISS_INDEX_PATH: /data/faiss_index
       OLLAMA_HOST: http://ollama:11434
+      QDRANT_HOST: http://qdrant:6333
       LLM_SOURCE: ollama
       MODEL: llama3.1
     volumes:

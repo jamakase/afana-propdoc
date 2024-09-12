@@ -1,5 +1,3 @@
-import os
-
 from app.config import Config
 
 
@@ -9,20 +7,17 @@ class LLMInstance:
         self.llm = None
         self.embeddings = None
 
-        if config.LLM_SOURCE == "openrouter":
-            from langchain_community.chat_models import ChatOpenAI
-            from langchain_huggingface.embeddings import HuggingFaceEmbeddings
+        if config.LLM_SOURCE == "openai":
+            from langchain_openai import ChatOpenAI
+            from langchain_community.embeddings import FastEmbedEmbeddings
 
             self.llm = ChatOpenAI(
                 model=config.MODEL,
-                openai_api_key=config.OPENROUTER_API_KEY,
-                base_url="https://openrouter.ai/api/v1",
+                openai_api_key=config.OPENAI_API_KEY,
+                openai_api_base=config.OPENAI_BASE_URL,
                 max_tokens=1000,
             )
-            cache_folder = os.path.join(os.getcwd(), "model_cache")
-            self.embeddings = HuggingFaceEmbeddings(
-                model_name=config.EMBEDDING_MODEL, cache_folder=cache_folder
-            )
+            self.embeddings = FastEmbedEmbeddings()
         elif config.LLM_SOURCE == "ygpt":
             from langchain_community.chat_models import ChatYandexGPT
             from langchain_community.embeddings import YandexGPTEmbeddings
