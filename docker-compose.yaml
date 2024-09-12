@@ -85,11 +85,11 @@ services:
     command: redis-server --requirepass ${REDIS_PASSWORD}
 
   celery_worker:
-    image: cr.yandex/crpc50gkvq2bp251sfgb/backend
+    image: cr.yandex/crpc50vq2bp251sfgb/backend
     build:
       context: ./services/backend
-      dockerfile: Dockerfile
-    command: celery -A celery_worker.celery worker --loglevel=info
+      dockerfile: Dockerfile-celery
+    entrypoint: watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery -A celery_worker.celery worker --loglevel=info
     volumes:
       - ./services/backend:/app
     environment:
@@ -100,7 +100,7 @@ services:
     depends_on:
       - db
       - redis
-      - backend_app
+      - ml
 
   ml:
     restart: unless-stopped
