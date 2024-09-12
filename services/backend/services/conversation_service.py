@@ -1,10 +1,13 @@
+import os
 import uuid
 from flask import jsonify
 from models import db
 from models.conversation_model import ConversationModel
+from models.file_model import FileModel
 from services.message_service import MessageService, SaveMessageOptions, Role
 from services.rag_service import RagService
 
+project_root = os.path.dirname(os.path.abspath(__file__))
 
 class ConversationService:
 
@@ -36,6 +39,17 @@ class ConversationService:
 
         MessageService.save_message(
             SaveMessageOptions(text = text, task_id = task_id, conversation_id = self.model.id, role = Role.USER)
+        )
+
+        return task_id
+
+    def handle_file(self, file: FileModel, text: str) -> str:
+
+        task_id = RagService.create_file_question_task(file, text)
+
+        MessageService.save_message(
+            SaveMessageOptions(text=text, task_id=task_id, conversation_id=self.model.id,
+                               role=Role.USER, file_id=file.id)
         )
 
         return task_id

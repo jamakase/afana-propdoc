@@ -1,6 +1,8 @@
-from wtforms import Form, StringField, validators, IntegerField
+from flask_wtf import FlaskForm
+from wtforms import IntegerField, StringField, FileField
+from wtforms.validators import DataRequired, Length
 
-
-class UploadForm(Form):
-    conversation_id = IntegerField('conversation_id')
-    question = StringField('question', [validators.Length(min=1)])
+class UploadForm(FlaskForm):
+    conversation_id = IntegerField('Conversation ID', validators=[DataRequired()])
+    message = StringField('Message', validators=[DataRequired(), Length(min=1)])
+    file = FileField('File', validators=[DataRequired()])

@@ -4,40 +4,16 @@ from langserve import add_routes
 
 from .config import config
 
+from packages.llm import LLMInstance
 from packages.retriever import Retriever
 from packages.prompts import prompt
 
-import os
-
-faiss_index_path = config.FAISS_INDEX_PATH
-
-# Create a ChatOllama instance with the llama2 model
-if config.USE_OPENROUTER:
-    from langchain_community.chat_models import ChatOpenAI
-    from langchain_huggingface.embeddings import HuggingFaceEmbeddings
-
-    llm = ChatOpenAI(
-        model=config.MODEL,
-        openai_api_key=config.OPENROUTER_API_KEY,
-        base_url="https://openrouter.ai/api/v1",
-        max_tokens=1000,
-    )
-    cache_folder = os.path.join(os.getcwd(), "model_cache")
-    embeddings = HuggingFaceEmbeddings(
-        model_name=config.EMBEDDING_MODEL, cache_folder=cache_folder
-    )
-else:
-    from langchain_community.chat_models import ChatOllama
-    from langchain_community.embeddings import OllamaEmbeddings
-
-    llm = ChatOllama(model=config.MODEL, base_url=config.OLLAMA_HOST)
-    embeddings = OllamaEmbeddings(model=config.MODEL, base_url=config.OLLAMA_HOST)
-
-retriever_instance = Retriever(embeddings, faiss_index_path)
+llm_instance = LLMInstance(config)
+retriever_instance = Retriever(llm_instance.get_embeddings(), host=config.QDRANT_HOST, collection_name=config.QDRANT_COLLECTION_NAME)
 
 # Create a RetrievalQA chain
 qa_chain = RetrievalQA.from_chain_type(
-    llm=llm,
+    llm=llm_instance.get_llm(),
     chain_type="stuff",
     retriever=retriever_instance.get_retriever(),
     chain_type_kwargs={"prompt": prompt},
