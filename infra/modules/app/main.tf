@@ -7,8 +7,13 @@ data "yandex_compute_image" "container-optimized-image" {
 }
 
 resource "yandex_iam_service_account" "sa-instance" {
+  # count       = var.service_account_id == null ? 1 : 0
   name        = "${var.project}-instance"
   description = "service account to work with instance"
+}
+
+locals {
+  service_account_id = coalesce(var.service_account_id, try(yandex_iam_service_account.sa-instance.id, null))
 }
 
 resource "yandex_vpc_security_group" "instance-sg" {
@@ -74,11 +79,12 @@ resource "yandex_compute_instance" "backend" {
     initialize_params {
       name     = "admin"
       image_id = data.yandex_compute_image.container-optimized-image.id
+      size = var.boot_disk_size
     }
   }
 
-  service_account_id = yandex_iam_service_account.sa-instance.id
-  
+  service_account_id = local.service_account_id
+
   network_interface {
     subnet_id      = var.subnet_id
     nat            = true

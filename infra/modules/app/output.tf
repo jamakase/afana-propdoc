@@ -3,5 +3,5 @@ output "server_ip" {
 }
 
 output "service_account_id" {
-  value = yandex_iam_service_account.sa-instance.id
+  value = local.service_account_id
 }
