@@ -230,21 +230,31 @@ export default function ConversationPage({ params }: { params: { id: string } })
 
   return (
     <div className="min-h-screen relative overflow-hidden hide-scrollbar">
-      <header className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#17153B] p-4 flex justify-between items-center">
-        {isSidebarOpen && (
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="text-white focus:outline-none"
+      {!isSidebarOpen && (   
+        <button
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="fixed top-4 left-4 z-50 md:hidden"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        )}
-      </header>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      )}
 
-      <main className="flex h-screen pt-16 md:pt-0">
-        <div className="fixed left-0 top-0 h-full md:relative">
+      <main className="flex h-screen">
+        <div className={`fixed left-0 top-0 h-full md:relative z-50 ${isSidebarOpen ? 'z-50' : 'z-10'}`}>
           <Sidebar
             conversations={conversations}
             currentConversationId={currentConversationId}
@@ -256,10 +266,10 @@ export default function ConversationPage({ params }: { params: { id: string } })
           />
         </div>
 
-        <div className="flex-1 flex flex-col h-screen ml-[300px] md:ml-0">
+        <div className="flex-1 flex flex-col h-screen ml-[0px] md:ml-0 overflow-y-auto">
           <MessageList messages={messages} />
 
-          <div className="p-4 bg-white">
+          <div className="p-4 bg-white fixed bottom-0 w-full md:relative">
             <div className="flex items-stretch">
               <input
                 type="text"
