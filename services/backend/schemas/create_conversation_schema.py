@@ -9,7 +9,7 @@ class ConversationSchema(Schema):
 create_conversation_swagger = {
     'tags': ['Conversation'],
     'description': 'Создать новую беседу. Не требует ввода данных.',
-    'parameters': [],  # Параметры запроса отсутствуют
+    'parameters': [],
     'responses': {
         201: {
             'description': 'Беседа успешно создана',

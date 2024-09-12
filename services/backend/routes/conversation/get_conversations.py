@@ -12,7 +12,7 @@ api = Blueprint('api', __name__)
 @swag_from(get_conversation_swagger)
 def get_conversation():
     try:
-        print('AAAAAAAAA')
+
         user_id = request.cookies.get('user_id')
         result = ConversationService.get_conversations(user_id)
 
