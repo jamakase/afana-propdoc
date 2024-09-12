@@ -10,12 +10,30 @@ from services.rag_service import RagService
 project_root = os.path.dirname(os.path.abspath(__file__))
 
 class ConversationService:
+    """
+    Сервис для работы с беседами.
+
+    Предоставляет методы для создания беседы, обработки сообщений и файлов,
+    удаления беседы и получения всех бесед пользователя.
+    """
 
     def __init__(self, model: ConversationModel = None):
+        """
+        Инициализирует ConversationService с данным объектом ConversationModel.
+
+        :param model: Экземпляр ConversationModel, с которым будет работать сервис.
+        """
         self.model = model
 
     @staticmethod
     def from_id(conversation_id: int):
+        """
+        Создает ConversationService на основе идентификатора беседы.
+
+        :param conversation_id: Идентификатор беседы.
+        :return: Экземпляр ConversationService.
+        :raises Exception: Если беседа с указанным идентификатором не найдена.
+        """
         conversation = ConversationModel.query.get(conversation_id)
 
         if not conversation:
@@ -26,6 +44,12 @@ class ConversationService:
 
     @staticmethod
     def create_conversation(user_id: uuid) -> ConversationModel:
+        """
+        Создает новую беседу.
+
+        :param user_id: Идентификатор пользователя, создающего беседу.
+        :return: Созданный экземпляр ConversationModel.
+        """
 
         new_conversation = ConversationModel(user_id = user_id)
 
@@ -35,6 +59,15 @@ class ConversationService:
         return new_conversation
 
     def handle_message(self, text: str) -> str:
+        """
+        Обрабатывает сообщение и сохраняет его в базе данных.
+
+        Создает задачу для обработки сообщения и сохраняет сообщение с этой задачей.
+
+        :param text: Текст сообщения.
+        :return: Идентификатор задачи, созданной для обработки сообщения.
+        """
+
         task_id = RagService.create_task(text)
 
         MessageService.save_message(
@@ -44,6 +77,15 @@ class ConversationService:
         return task_id
 
     def handle_file(self, file: FileModel, text: str) -> str:
+        """
+        Обрабатывает файл и сохраняет сообщение с файлом в базе данных.
+
+        Создает задачу для обработки файла и сообщения и сохраняет сообщение с этой задачей и файлом.
+
+        :param file: Экземпляр FileModel, представляющий загруженный файл.
+        :param text: Текст сообщения.
+        :return: Идентификатор задачи, созданной для обработки файла и сообщения.
+        """
 
         task_id = RagService.create_file_question_task(file, text)
 
@@ -55,6 +97,9 @@ class ConversationService:
         return task_id
 
     def delete_conversation(self):
+        """
+        Удаляет беседу и связанные с ней сообщения.
+        """
 
         delete_result, code = MessageService.delete_message(self.model.id)
 
@@ -66,6 +111,12 @@ class ConversationService:
 
     @staticmethod
     def get_conversations(user_id):
+        """
+        Получает список идентификаторов бесед для указанного пользователя.
+
+        :param user_id: Идентификатор пользователя.
+        :return: Список идентификаторов бесед или сообщение об ошибке, если беседы не найдены.
+        """
         conversations = ConversationModel.query.filter_by(user_id=user_id).all()
         print(conversations)
         if not conversations:

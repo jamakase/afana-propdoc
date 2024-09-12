@@ -11,6 +11,11 @@ api = Blueprint('api', __name__)
 @api.route('/conversations/get', methods=['POST'])
 @swag_from(get_conversation_swagger)
 def get_conversation():
+    """
+    Получает список бесед для пользователя по его идентификатору, который хранится в cookie.
+
+    :return:JSON-ответ с данными бесед или сообщением об ошибке.
+    """
     try:
 
         user_id = request.cookies.get('user_id')
