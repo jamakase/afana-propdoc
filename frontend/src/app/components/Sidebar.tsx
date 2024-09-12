@@ -1,7 +1,8 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button"
+import { useRouter } from 'next/navigation';
 
 type Conversation = {
   id: number;
@@ -19,78 +20,9 @@ type SidebarProps = {
   onCloseSidebar: () => void;
 };
 
-type ConversationItemProps = {
-  conversation: Conversation;
-  isActive: boolean;
-  onConversationChange: (id: number) => void;
-  onDeleteConversation: (id: number) => void;
-};
-
-const ConversationItem = React.memo(({ conversation, isActive, onConversationChange, onDeleteConversation }: ConversationItemProps) => {
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.8 }}
-      transition={{ 
-        duration: 0.3, 
-        ease: "easeInOut",
-        opacity: { duration: 0.2 },
-        scale: { duration: 0.2 },
-        layout: { duration: 0.3 }
-      }}
-    >
-      <Link
-        href={`/conversations/${conversation.id}`}
-        onClick={(e) => {
-          e.preventDefault();
-          onConversationChange(conversation.id);
-        }}
-      >
-        <label
-          htmlFor={`chat-${conversation.id}`}
-          className={`flex text-base mb-4 cursor-pointer items-center justify-between gap-4 rounded-lg border p-4 text-sm font-medium shadow-sm hover:border-[#E5A7ED] ${
-            isActive
-              ? 'bg-[#D988E4] text-black'
-              : 'bg-[#E6E8EF] text-black'
-          }`}
-        >
-          <p>{conversation.name}</p>
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onDeleteConversation(conversation.id);
-            }}
-          >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              height="24" 
-              viewBox="0 -960 960 960" 
-              width="24" 
-              fill="#898D9F"
-              className="hover:fill-[#E5A7ED]"
-            >
-              <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
-            </svg>
-          </button>
-        </label>
-      </Link>
-    </motion.div>
-  );
-});
-
 export default function Sidebar({ conversations, currentConversationId, onConversationChange, onAddConversation, onDeleteConversation, isSidebarOpen, onCloseSidebar }: SidebarProps) {
   const menuRef = useRef(null);
-
-  const handleConversationChange = useCallback((id: number) => {
-    onConversationChange(id);
-  }, [onConversationChange]);
-
-  const handleDeleteConversation = useCallback((id: number) => {
-    onDeleteConversation(id);
-  }, [onDeleteConversation]);
+  const router = useRouter();
 
   return (
     <aside
@@ -134,13 +66,58 @@ export default function Sidebar({ conversations, currentConversationId, onConver
           <fieldset className="space-y-4">
             <AnimatePresence mode="popLayout">
               {conversations.map((conversation) => (
-                <ConversationItem
+                <motion.div
                   key={conversation.id}
-                  conversation={conversation}
-                  isActive={currentConversationId === conversation.id}
-                  onConversationChange={handleConversationChange}
-                  onDeleteConversation={handleDeleteConversation}
-                />
+                  layout
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ 
+                    duration: 0.3, 
+                    ease: "easeInOut",
+                    opacity: { duration: 0.2 },
+                    scale: { duration: 0.2 },
+                    layout: { duration: 0.3 }
+                  }}
+                >
+                  <Link
+                    href={`/conversations/${conversation.id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onConversationChange(conversation.id);
+                      router.push(`/conversations/${conversation.id}`);
+                    }}
+                  >
+                    <label
+                      htmlFor={`chat-${conversation.id}`}
+                      className={`flex text-base mb-4 cursor-pointer items-center justify-between gap-4 rounded-lg border p-4 text-sm font-medium shadow-sm hover:border-[#E5A7ED] ${
+                        currentConversationId === conversation.id
+                          ? 'bg-[#D988E4] text-black'
+                          : 'bg-[#E6E8EF] text-black'
+                      }`}
+                    >
+                      <p>{conversation.name}</p>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          onDeleteConversation(conversation.id);
+                        }}
+                      >
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          height="24" 
+                          viewBox="0 -960 960 960" 
+                          width="24" 
+                          fill="#898D9F"
+                          className="hover:fill-[#E5A7ED]"
+                        >
+                          <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
+                        </svg>
+                      </button>
+                    </label>
+                  </Link>
+                </motion.div>
               ))}
             </AnimatePresence>
           </fieldset>
