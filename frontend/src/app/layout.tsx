@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ConfigProvider } from "@/domain/config/ConfigProvider";
 import { headers } from "next/headers";
+import { MainLayout } from "./_components/MainLayout";
 
 const robotoMono = Roboto_Mono({
   subsets: ["latin", "cyrillic"],
@@ -41,7 +42,10 @@ export default async function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body className={inter.className}>
-        <ConfigProvider configData={config}>{children}</ConfigProvider>
+        <ConfigProvider configData={config}>
+          {/* <MainLayout>{children}</MainLayout> */}
+          <MainLayout>{children}</MainLayout>
+        </ConfigProvider>
       </body>
     </html>
   );
