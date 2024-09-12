@@ -34,6 +34,13 @@ resource "yandex_vpc_security_group" "instance-sg" {
     }
 
   ingress {
+    protocol       = "ANY"
+    description    = "https"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    port           = 6333
+  }
+
+  ingress {
     description       = "Communication inside this SG"
     from_port         = -1
     port              = -1

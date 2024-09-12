@@ -109,16 +109,27 @@ services:
       context: ./services/ml
       dockerfile: Dockerfile
     environment:
-      FAISS_INDEX_PATH: /data/faiss_index
-      EMBEDDING_MODEL: sentence-transformers/all-mpnet-base-v2
+      LLM_SOURCE: ollama
+      OLLAMA_HOST: http://localhost:11434
+      MODEL_NAME: llama3.1
+      QDRANT_HOST: http://qdrant:6333
+      # EMBEDDING_MODEL: sentence-transformers/all-mpnet-base-v2
     volumes:
       - ./services/ml:/app
       - ./services/ml/data:/data
       - ./.model_cache:/app/model_cache
     depends_on:
       - redis
+      - qdrant
     ports:
       - "3001:8000"
+  
+  qdrant:
+    image: qdrant/qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - ./.cache/qdrant:/data
 
 volumes:
   postgres_data:
