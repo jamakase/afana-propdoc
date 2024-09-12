@@ -1,36 +1,36 @@
 version: '3.8'
 
 services:
-  traefik:
-    image: traefik:v2.11
-    container_name: traefik
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-    ports:
-      - "80:80"
-      - "443:443"
-      - "8080:8080"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./data/ssl:/letsencrypt
-    restart: always
+  # traefik:
+  #   image: traefik:v2.11
+  #   container_name: traefik
+  #   command:
+  #     - "--api.insecure=true"
+  #     - "--providers.docker=true"
+  #     - "--entrypoints.web.address=:80"
+  #     - "--entrypoints.websecure.address=:443"
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #     - "8080:8080"
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - ./data/ssl:/letsencrypt
+  #   restart: always
 
-  frontend_app:
-    image: cr.yandex/crpc50gkvq2bp251sfgb/app
-    container_name: frontend_app
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    environment:
-      - API_URL=http://api.${HOST}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.app.rule=Host(`${HOST}`)"
-      - "traefik.http.routers.app.entrypoints=web"
-      - "traefik.http.services.app.loadbalancer.server.port=3000"
+  # frontend_app:
+  #   image: cr.yandex/crpc50gkvq2bp251sfgb/app
+  #   container_name: frontend_app
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - API_URL=http://api.${HOST}
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.app.rule=Host(`${HOST}`)"
+  #     - "traefik.http.routers.app.entrypoints=web"
+  #     - "traefik.http.services.app.loadbalancer.server.port=3000"
 
   backend_app:
     restart: unless-stopped
@@ -50,7 +50,7 @@ services:
       - db
       - redis
     ports:
-      - 5001:5000
+      - 5000:5000
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`api.${HOST}`)"
@@ -100,7 +100,7 @@ services:
     depends_on:
       - db
       - redis
-      - backend_app
+      - ml
 
   ml:
     restart: unless-stopped
@@ -109,8 +109,8 @@ services:
       context: ./services/ml
       dockerfile: Dockerfile
     environment:
-      FAISS_INDEX_PATH: /data/faiss_index
       OLLAMA_HOST: http://ollama:11434
+      QDRANT_HOST: http://qdrant:6333
       LLM_SOURCE: ollama
       MODEL: llama3.1
     volumes:
