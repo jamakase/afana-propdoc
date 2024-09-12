@@ -15,18 +15,11 @@ retriever_instance = Retriever(llm_instance.get_embeddings(), host=config.QDRANT
 
 class InputChat(BaseModel):
     """Input for the chat endpoint."""
-    query: str = Field(..., description="The query to retrieve relevant documents.")
+    question: str = Field(..., description="The query to retrieve relevant documents.")
 
 class OutputChat(BaseModel):
     """Output for the chat endpoint."""
-    output: dict = Field(..., description="The output containing the result.")
-
-    @validator('output')
-    def check_output_structure(cls, v):
-        if not isinstance(v, dict) or 'result' not in v:
-            raise ValueError("output must be a dict with a 'result' key")
-        return v
-
+    result: str = Field(..., description="The output containing the result.")
 
 # Modify the qa_chain definition
 qa_chain = (
@@ -36,7 +29,7 @@ qa_chain = (
     | prompt
     | llm_instance.get_llm()
     | StrOutputParser()
-    | (lambda x: {"output": {"result": x}})
+    | (lambda x: {"result": x})
 ).with_types(input_type=InputChat, output_type=OutputChat)
 
 
