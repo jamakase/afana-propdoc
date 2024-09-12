@@ -17,5 +17,7 @@ class Config:
             self.OLLAMA_HOST: str = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
             self.MODEL = os.environ.get("MODEL", "llama3.1")
             self.EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "llama3.1")
+        elif self.LLM_SOURCE == "ygpt":
+            pass
         else:
             raise ValueError(f"Unsupported LLM_SOURCE: {self.LLM_SOURCE}")
