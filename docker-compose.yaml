@@ -109,11 +109,9 @@ services:
       context: ./services/ml
       dockerfile: Dockerfile
     environment:
-      LLM_SOURCE: ollama
-      OLLAMA_HOST: http://localhost:11434
-      MODEL_NAME: llama3.1
+      LLM_SOURCE: openai
       QDRANT_HOST: http://qdrant:6333
-      # EMBEDDING_MODEL: sentence-transformers/all-mpnet-base-v2
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
     volumes:
       - ./services/ml:/app
       - ./services/ml/data:/data

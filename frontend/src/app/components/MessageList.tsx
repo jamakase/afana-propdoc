@@ -14,7 +14,7 @@ type MessageListProps = {
 
 export default function MessageList({ messages }: MessageListProps) {
     return (
-        <ScrollArea className="flex-1 p-4 overflow-y-auto bg-white">
+        <ScrollArea key={messages.length} className="flex-1 p-4 overflow-y-auto bg-white">
             <AnimatePresence>
                 {messages.map((msg) => (
                     <motion.div
