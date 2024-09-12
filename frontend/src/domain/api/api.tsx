@@ -10,6 +10,7 @@ export const api = {
     async sendMessage(api_url: string, conversationId: number, message: string) {
         const response = await fetch(`${api_url}/message`, {
             method: 'POST',
+            credentials: "include",
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -21,6 +22,7 @@ export const api = {
     async checkTaskResult(api_url: string, taskId: string) {
         const response = await fetch(`${api_url}/task/${taskId}`, {
             method: 'GET',
+            credentials: "include",
         });
         return response.json();
     },
@@ -38,6 +40,7 @@ export const api = {
     async deleteConversation(api_url: string, conversationId: number) {
         const response = await fetch(`${api_url}/conversation/delete/${conversationId}`, {
             method: 'DELETE',
+            credentials: "include",
         });
         return response.json();
     },
