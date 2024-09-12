@@ -106,8 +106,9 @@ services:
     container_name: ml
     image: cr.yandex/crpc50gkvq2bp251sfgb/ml
     environment:
-      FAISS_INDEX_PATH: /data/faiss_index
-      USE_OPENROUTER: false
+      LLM_SOURCE: openai
+      QDRANT_HOST: http://qdrant:6333
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
     volumes:
       - /home/yc-user/model_cache:/app/model_cache
       - /home/yc-user/index_faiss:/data/faiss_index

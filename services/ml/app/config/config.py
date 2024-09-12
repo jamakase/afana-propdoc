@@ -4,6 +4,7 @@ class Config:
     PORT: int = int(os.environ.get("PORT", 8000))
     QDRANT_HOST: str = os.environ.get("QDRANT_HOST", "http://localhost:6333")
     QDRANT_COLLECTION_NAME: str = os.environ.get("QDRANT_COLLECTION_NAME", "test")
+    QDRANT_API_KEY: str = os.environ.get("QDRANT_API_KEY")
     LLM_SOURCE: str = os.environ.get("LLM_SOURCE", "openai")
 
     def __init__(self):

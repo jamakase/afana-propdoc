@@ -10,7 +10,7 @@ from langchain_core.output_parsers import StrOutputParser
 from .config import config
 
 llm_instance = LLMInstance(config)
-retriever_instance = Retriever(llm_instance.get_embeddings(), host=config.QDRANT_HOST, collection_name=config.QDRANT_COLLECTION_NAME)
+retriever_instance = Retriever(llm_instance.get_embeddings(), host=config.QDRANT_HOST, collection_name=config.QDRANT_COLLECTION_NAME, api_key=config.QDRANT_API_KEY)
 
 
 class InputChat(BaseModel):
