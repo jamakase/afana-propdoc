@@ -14,7 +14,7 @@ type MessageListProps = {
 
 export default function MessageList({ messages }: MessageListProps) {
     return (
-        <ScrollArea key={messages.length} className="flex-1 p-4 overflow-y-auto bg-white">
+        <ScrollArea key={messages.length} className="flex-1 px-4 pt-4 pb-16 md:pb-0 md:px-8 md:pt-8 overflow-y-auto bg-white">
             <AnimatePresence>
                 {messages.map((msg) => (
                     msg.text && (
@@ -26,8 +26,8 @@ export default function MessageList({ messages }: MessageListProps) {
                             transition={{ duration: 0.5 }}
                             className={`mb-4 ${msg.sender === 'user' ? 'flex justify-end' : ''}`}
                         >
-                            <div className={`inline-block p-2 rounded-lg max-w-[70%] break-words ${
-                                msg.sender === 'user' ? 'bg-[#D958E4] text-white text-left' : 'bg-[#CDCED7] text-black text-justify'
+                            <div className={`inline-block px-2 py-3 rounded-lg max-w-[70%] break-words ${
+                                msg.sender === 'user' ? 'bg-[#5d76f7] text-white text-left' : 'bg-gray-300 text-black text-justify'
                             }`}>
                                 {msg.text}
                             </div>

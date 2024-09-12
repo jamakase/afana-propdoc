@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import MessageList from "../../../_components/MessageList";
+import { Send } from "lucide-react";
 
 // Тип для хранения информации о чате
 type Conversation = {
@@ -76,8 +77,8 @@ export default function ConversationPage({
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden hide-scrollbar">
-      {!isSidebarOpen && (
+    <div className="min-h-full w-full relative overflow-hidden hide-scrollbar">
+      {/* {!isSidebarOpen && (
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           className="fixed top-4 left-4 z-50 md:hidden"
@@ -98,34 +99,30 @@ export default function ConversationPage({
             <line x1="3" y1="18" x2="21" y2="18"></line>
           </svg>
         </button>
-      )}
+      )} */}
 
-      <main className="flex h-screen">
-        <div
-          className={`fixed left-0 top-0 h-full md:relative z-50 ${
-            isSidebarOpen ? "z-50" : "z-10"
-          }`}
-        ></div>
+      <main className="flex h-full">
 
-        <div className="flex-1 flex flex-col h-screen ml-[0px] md:ml-0 overflow-y-auto">
+        <div className="flex-1 flex flex-col h-full ml-[0px] md:ml-0 overflow-y-auto">
           <MessageList messages={currentConversation || []} />
 
-          <div className="p-4 bg-white fixed bottom-0 w-full md:relative">
-            <div className="flex items-stretch">
+          <div className="p-4 bg-white border-t border-gray-300 fixed bottom-0 w-full md:relative">
+            <div className="flex items-stretch gap-3">
               <input
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Введите ваш вопрос"
-                className="flex-grow p-2 bg-[#EFF0F3] border border-gray-300 rounded-l-2xl focus:outline-none h-full"
+                className="flex-grow p-2 focus:outline-none h-full"
                 style={{ color: "black" }}
               />
               <Button
+              size="icon"
                 onClick={handleSendMessage}
-                className="rounded-r-2xl rounded-l-none bg-[#1D1F27] focus:outline-none cursor-pointer hover:bg-[#606371] border-l-0 h-full"
+                className="rounded-full"
               >
-                Отправить
+                <Send className="w-5 h-5 text-white mt-px mr-px" />
               </Button>
             </div>
           </div>

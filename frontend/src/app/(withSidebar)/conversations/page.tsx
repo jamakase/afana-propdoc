@@ -2,6 +2,7 @@
 
 import { api } from '@/domain/api/api';
 import { useConfig } from '@/domain/config/ConfigProvider';
+import { MessagesSquare } from 'lucide-react';
 import { useQuery } from 'react-query';
 
 export default function Home() {
@@ -16,5 +17,10 @@ export default function Home() {
       })))
   );
 
-  return "Самое время начать общение!";
+  return (
+    <div className="text-md md:text-xl text-gray-500 font-bold h-full w-full flex flex-col md:flex-row items-center justify-center">
+      <MessagesSquare className="w-8 md:w-10 h-8 md:h-10 mr-2" />
+      Самое время начать общение!
+    </div>
+  );
 }

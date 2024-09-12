@@ -1,6 +1,8 @@
 import { api } from '@/domain/api/api';
 import { useConfig } from "@/domain/config/ConfigProvider";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { AnimatePresence, motion } from "framer-motion";
+import { X, MessageCirclePlus } from 'lucide-react';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "react-query";
@@ -15,10 +17,12 @@ type SidebarProps = {
   currentConversationId: number | null | string;
   isSidebarOpen?: boolean;
   onCloseSidebar?: () => void;
+  onAddConversation?: () => void;
 };
 
 export default function Sidebar({
   currentConversationId,
+  onAddConversation
 }: SidebarProps) {
   const router = useRouter();
   const config = useConfig();
@@ -51,7 +55,7 @@ export default function Sidebar({
 
   return (
     <aside
-
+      className="h-full w-20 md:w-48 md:min-w-48"
     >
       {/* <button
         className="md:hidden absolute top-2 right-5 text-black transition-all hover:text-gray-600 active:scale-90"
@@ -60,7 +64,14 @@ export default function Sidebar({
         ✕
       </button> */}
       {/* <div className="py-4 px-2 flex-1 flex flex-col items-center min-h-0 bg-gray-200 overflow-hidden w-16 min-w-16 max-w-16 m-2 mr-1 rounded-lg gap-2"> */}
-      <div className="bg-white border-r border-gray-200 flex-1 overflow-y-auto py-3 pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+      <div className="h-full bg-white border-r border-gray-200 flex-1 overflow-y-auto md:py-3 pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+        <div
+          onClick={() => console.log("NEW")}
+          className="flex font-semibold cursor-pointer items-center justify-center md:justify-start gap-1 border-b py-2 md:p-4 text-sm transition-all duration-500 hover:text-gray-600"
+        >
+          <MessageCirclePlus className="w-6 h-6" />
+            <span className="hidden md:block">Начать новый чат</span>
+        </div>
         <fieldset className="">
           <AnimatePresence mode="popLayout">
             {conversations.map((conversation: any) => (
@@ -81,32 +92,35 @@ export default function Sidebar({
                 <Link href={`/conversations/${conversation.id}`}>
                   <label
                     htmlFor={`chat-${conversation.id}`}
-                    className={`flex cursor-pointer items-center justify-between gap-4 border-b p-4 text-sm font-medium ${
-                      currentConversationId === conversation.id
-                        ? "bg-indigo-100 text-black"
-                        : " text-black"
+                    className={`flex cursor-pointer items-center justify-between gap-4 border-b px-2 py-3 md:p-4 text-sm font-medium ${
+                      currentConversationId == conversation.id
+                        ? "bg-[#5d76f7]/20 text-black font-semibold"
+                        : "text-black"
                     }`}
                   >
                     <p>{conversation.name}</p>
-                    <button
+
+                    <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                      className="hidden md:block"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         handleDeleteConversation(conversation.id);
                       }}
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        height="24"
-                        viewBox="0 -960 960 960"
-                        width="24"
-                        fill="#898D9F"
-                        className="hover:fill-[#E5A7ED]"
-                      >
-                        <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z" />
-                      </svg>
+                      <X className="w-5 h-5 text-gray-500 hover:text-red-400" />
+                    
                     </button>
-                  </label>
+            </TooltipTrigger>
+            <TooltipContent side="right">Удалить чат</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        </label>
+
+                    
                 </Link>
               </motion.div>
             ))}
