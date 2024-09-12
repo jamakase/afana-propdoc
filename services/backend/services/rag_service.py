@@ -58,15 +58,16 @@ class QuestionTaskWithFile(Task):
 
 class RagService:
     @staticmethod
-    def create_task(question: str) -> str:
+    def create_task(conversation_id, question: str) -> str:
         """
         Создает задачу для обработки вопроса.
 
+        :param conversation_id: Идентификатор беседы.
         :param question: Вопрос для обработки.
         :return: Идентификатор созданной задачи.
         """
 
-        return run_question_task.delay(question).id
+        return run_question_task.delay(conversation_id, question).id
 
     @staticmethod
     def create_file_question_task(file: FileModel, question: str) -> str:
@@ -83,10 +84,11 @@ class RagService:
 
 
 @shared_task(base = QuestionTask,ignore_result=False)
-def run_question_task(question: str):
+def run_question_task(conversation_id, question: str):
     """
     Обрабатывает вопрос.
 
+    :param conversation_id: Идентификатор беседы.
     :param question: Вопрос для обработки.
     :return: Результат обработки вопроса.
     """
@@ -98,7 +100,15 @@ def run_question_task(question: str):
                 "context": "Контекст"
             }
         }
-        response = requests.post(rag_url, json=data)
+
+        all_messages = MessageService.get_message(conversation_id)
+
+        query = {
+            "data": data,
+            "messages": all_messages
+        }
+
+        response = requests.post(rag_url, json=query)
         response.raise_for_status()
 
         result = response.json()
@@ -130,6 +140,7 @@ def run_file_question_task(file_id, file_path, question: str) -> dict:
             "result": "OTVET NA TEXT."
         }
     }
+
 
         json.dumps(result)
         return result
