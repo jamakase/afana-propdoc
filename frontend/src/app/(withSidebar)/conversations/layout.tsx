@@ -1,25 +1,35 @@
 "use client";
 
-import type { Metadata } from "next";
-import { Roboto_Mono } from "next/font/google";
-import { Inter } from "next/font/google";
-import { ConfigProvider } from "@/domain/config/ConfigProvider";
-import { headers } from "next/headers";
-import { QueryClient, QueryClientProvider } from "react-query";
 import Sidebar from "@/app/_components/Sidebar";
-import { usePathname, useParams } from "next/navigation";
-// import { MainLayout } from "./components/MainLayout";
+import { api } from "@/domain/api/api";
+import { useConfig } from "@/domain/config/ConfigProvider";
+import { useRouter } from "next/navigation";
+import { useMutation } from "react-query";
 
 export default function RootLayout({
   children,
-}: Readonly<{
+  params,
+}: {
   children: React.ReactNode;
-}>) {
-  const { id } = useParams();
-  const conversationId = Array.isArray(id) ? id[0] : id;
+  params: { id?: string };
+}) {
+  const conversationId = params.id;
+  const router = useRouter();
+  const config = useConfig();
+
+  const createConversationMutation = useMutation({
+    mutationFn: () => api.createConversation(config.ENDPOINT),
+    onSuccess: (response: any) => {
+      router.push(`/conversations/${response.data.id}`);
+    },
+  });
+
   return (
     <div className="flex w-full h-full">
-      <Sidebar currentConversationId={conversationId} />
+      <Sidebar
+        currentConversationId={conversationId ?? null}
+        onAddConversation={createConversationMutation.mutate}
+      />
       {children}
     </div>
   );

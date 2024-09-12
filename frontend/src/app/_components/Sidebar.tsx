@@ -15,9 +15,7 @@ type Conversation = {
 
 type SidebarProps = {
   currentConversationId: number | null | string;
-  isSidebarOpen?: boolean;
-  onCloseSidebar?: () => void;
-  onAddConversation?: () => void;
+  onAddConversation: () => void;
 };
 
 export default function Sidebar({
@@ -66,7 +64,7 @@ export default function Sidebar({
       {/* <div className="py-4 px-2 flex-1 flex flex-col items-center min-h-0 bg-gray-200 overflow-hidden w-16 min-w-16 max-w-16 m-2 mr-1 rounded-lg gap-2"> */}
       <div className="h-full bg-white border-r border-gray-200 flex-1 overflow-y-auto md:py-3 pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
         <div
-          onClick={() => console.log("NEW")}
+          onClick={() => onAddConversation()}
           className="flex font-semibold cursor-pointer items-center justify-center md:justify-start gap-1 border-b py-2 md:p-4 text-sm transition-all duration-500 hover:text-gray-600"
         >
           <MessageCirclePlus className="w-6 h-6" />
