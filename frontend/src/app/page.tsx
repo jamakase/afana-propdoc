@@ -27,5 +27,5 @@ export default function Home() {
     redirectToConversation();
   }, [router, config.ENDPOINT]);
 
-  return null; // или можно вернуть компонент загрузки
+  return null; 
 }
