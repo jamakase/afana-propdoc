@@ -12,6 +12,16 @@ class Role(Enum):
 
 @dataclass
 class SaveMessageOptions:
+    """
+    Класс для хранения параметров сохранения сообщения.
+
+    :param text: Текст сообщения.
+    :param conversation_id: Идентификатор беседы.
+    :param task_id: Идентификатор задачи.
+    :param role: Роль отправителя сообщения.
+    :param file_id: Идентификатор файла.
+    """
+
     text: str
     conversation_id: int
     task_id: str
@@ -20,6 +30,9 @@ class SaveMessageOptions:
 
 
 class MessageService:
+    """
+    Класс для работы с сообщениями.
+    """
 
     def __init__(self, model: MessageModel = None):
         self.model = model
@@ -36,6 +49,10 @@ class MessageService:
 
     @staticmethod
     def save_message(options: SaveMessageOptions) -> MessageModel:
+        """
+        Сохраняет сообщение в базе данных.
+        """
+
         new_message = MessageModel(
             text = options.text,
             conversation_id = options.conversation_id,
@@ -51,6 +68,13 @@ class MessageService:
 
     @staticmethod
     def delete_message(conversation_id):
+        """
+        Удаляет сообщения по идентификатору беседы.
+
+        :param conversation_id: Идентификатор беседы.
+        :return: Сообщение об успешном удалении или ошибке.
+        """
+
         if not conversation_id:
             return 'Conversation ID not found', 400
 
@@ -61,6 +85,13 @@ class MessageService:
 
     @staticmethod
     def get_message(conversation_id):
+        """
+        Получает все сообщения для заданного идентификатора беседы.
+
+        :param conversation_id: Идентификатор беседы.
+        :return: Словарь с сообщениями, сгруппированными по идентификатору беседы, код ответа.
+        """
+
         messages = MessageModel.query.filter(MessageModel.conversation_id.in_([conversation_id])).all()
 
         if not messages:

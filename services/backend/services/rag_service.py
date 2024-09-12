@@ -51,7 +51,7 @@ class QuestionTaskWithFile(Task):
         message = MessageService.from_task_id(task_id).model
 
         MessageService.save_message(
-            SaveMessageOptions(text=retval['output']['result'], task_id=task_id, conversation_id=message.conversation_id, role=Role.SYSTEM, file_id = retval['file_id'])
+            SaveMessageOptions(text=retval['output']['result'], task_id=task_id, conversation_id=message.conversation_id, role=Role.SYSTEM)
         )
 
         super().on_success(retval, task_id, args, kwargs)
@@ -59,16 +59,38 @@ class QuestionTaskWithFile(Task):
 class RagService:
     @staticmethod
     def create_task(question: str) -> str:
+        """
+        Создает задачу для обработки вопроса.
+
+        :param question: Вопрос для обработки.
+        :return: Идентификатор созданной задачи.
+        """
+
         return run_question_task.delay(question).id
 
     @staticmethod
     def create_file_question_task(file: FileModel, question: str) -> str:
+        """
+        Создает задачу для обработки вопроса с файлом.
+
+        :param file: Объект FileModel.
+        :param question: Вопрос для обработки.
+        :return: Идентификатор созданной задачи.
+        """
+
         return run_file_question_task.delay(file.id, file.file_path, question).id
 
 
 
 @shared_task(base = QuestionTask,ignore_result=False)
 def run_question_task(question: str):
+    """
+    Обрабатывает вопрос.
+
+    :param question: Вопрос для обработки.
+    :return: Результат обработки вопроса.
+    """
+
     try:
         data = {
             "input":{
@@ -89,14 +111,25 @@ def run_question_task(question: str):
 
 @shared_task(base = QuestionTaskWithFile,ignore_result=False)
 def run_file_question_task(file_id, file_path, question: str) -> dict:
+    """
+    Обрабатывает вопрос с загруженным файлом.
+
+    :param file_id: Идентификатор файла.
+    :param file_path: Путь к файлу.
+    :param question: Вопрос для обработки.
+    :return: Результат обработки вопроса.
+    """
+
     try:
-        result = {
-            "output":{
-            "result": f'Ответ на вопрос с файлом: {question}',
-            "file_id": file_id,
-            "file_path": file_path
-            }
+        result =  {
+        "metadata":{
+            "feedback_tokens": [],
+            "run_id": "426ba193-5406-40af-b5d4-be1f8ede18bb"
+        },
+        "output":{
+            "result": "OTVET NA TEXT."
         }
+    }
 
         json.dumps(result)
         return result

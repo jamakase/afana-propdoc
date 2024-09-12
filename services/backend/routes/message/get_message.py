@@ -10,6 +10,12 @@ api = Blueprint('api', __name__)
 @api.route('/messages/<conversation_id>', methods=['GET'])
 @swag_from(get_message_swagger)
 def get_user_messages(conversation_id):
+    """
+    Получает список сообщений для заданной беседы.
+
+    :param conversation_id:Идентификатор беседы
+    :return:JSON-ответ со списком сообщений для указанной беседы или сообщение об ошибке.
+    """
     try:
         result = MessageService.get_message(conversation_id)
 

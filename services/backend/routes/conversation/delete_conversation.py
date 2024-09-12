@@ -7,6 +7,12 @@ api = Blueprint('api', __name__)
 
 @api.route('/conversation/delete/<conversation_id>', methods=['DELETE'])
 def delete_message(conversation_id):
+    """
+    Удаляет беседу по идентификатору беседы.
+
+    :param conversation_id: Идентификатор беседы
+    :return:JSON-ответ с сообщением об успешном удалении или ошибке
+    """
     try:
         ConversationService.from_id(conversation_id).delete_conversation()
         return jsonify({'message': 'Conversation deleted successfully'}), 200
