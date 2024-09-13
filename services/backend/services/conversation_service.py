@@ -68,7 +68,7 @@ class ConversationService:
         :return: Идентификатор задачи, созданной для обработки сообщения.
         """
 
-        task_id = RagService.create_task(self.model.id, text)
+        task_id = RagService.create_task(text)
 
         MessageService.save_message(
             SaveMessageOptions(text = text, task_id = task_id, conversation_id = self.model.id, role = Role.USER)

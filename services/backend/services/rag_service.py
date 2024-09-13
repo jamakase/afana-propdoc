@@ -58,16 +58,15 @@ class QuestionTaskWithFile(Task):
 
 class RagService:
     @staticmethod
-    def create_task(conversation_id, question: str) -> str:
+    def create_task(question: str) -> str:
         """
         Создает задачу для обработки вопроса.
 
-        :param conversation_id: Идентификатор беседы.
         :param question: Вопрос для обработки.
         :return: Идентификатор созданной задачи.
         """
 
-        return run_question_task.delay(conversation_id, question).id
+        return run_question_task.delay(question).id
 
     @staticmethod
     def create_file_question_task(file: FileModel, question: str) -> str:
@@ -84,31 +83,19 @@ class RagService:
 
 
 @shared_task(base = QuestionTask,ignore_result=False)
-def run_question_task(conversation_id, question: str):
+def run_question_task(question: str):
     """
     Обрабатывает вопрос.
 
-    :param conversation_id: Идентификатор беседы.
     :param question: Вопрос для обработки.
     :return: Результат обработки вопроса.
     """
 
     try:
         data = {
-            "input":{
-                "question": "Какие документы по строительству объектов есть в базе?",
-                "context": "Контекст"
-            }
+                "question": question,
         }
-
-        all_messages = MessageService.get_message(conversation_id)
-
-        query = {
-            "data": data,
-            "messages": all_messages
-        }
-
-        response = requests.post(rag_url, json=query)
+        response = requests.post(rag_url, json=data)
         response.raise_for_status()
 
         result = response.json()
@@ -129,31 +116,15 @@ def run_file_question_task(file_id, file_path, question: str) -> dict:
     :param question: Вопрос для обработки.
     :return: Результат обработки вопроса.
     """
+    pass
 
-    try:
-        result =  {
-        "metadata":{
-            "feedback_tokens": [],
-            "run_id": "426ba193-5406-40af-b5d4-be1f8ede18bb"
-        },
-        "output":{
-            "result": "OTVET NA TEXT."
-        }
-    }
+    # with open(file_path, 'rb') as file:
+    #     files = {'file': file}
+    #     data = {'text': question}
+    #
+    #     response = requests.post(rag_url, files=files, data=data)
+    #     response.raise_for_status()
+    #
+    #     result = response.json()
+    #     return result
 
-
-        json.dumps(result)
-        return result
-        #
-        # with open(filepath, 'rb') as file:
-        #     files = {'file': file}
-        #     data = {'text': question}
-        #
-        #     response = requests.post(rag_url, files=files, data=data)
-        #     response.raise_for_status()
-        #
-        #     result = response.json()
-        #     return result
-
-    except requests.exceptions.RequestException as e:
-        return {'error': str(e)}
