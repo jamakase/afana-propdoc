@@ -43,6 +43,9 @@ add_routes(
     path="/pdf",
 )
 
+retriever_chain = retriever_instance.get_retriever() | (lambda docs: [doc.page_content for doc in docs])
+
+add_routes(app, path="/search", runnable=retriever_chain)
 
 if __name__ == "__main__":
     import uvicorn
