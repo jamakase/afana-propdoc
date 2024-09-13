@@ -93,7 +93,9 @@ def run_question_task(question: str):
 
     try:
         data = {
+            "input":{
                 "question": question,
+            }
         }
         response = requests.post(rag_url, json=data)
         response.raise_for_status()
