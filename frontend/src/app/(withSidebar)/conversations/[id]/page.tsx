@@ -80,10 +80,12 @@ export default function ConversationPage({
     setMessage("");
   };
 
-  const isPendingRequest = currentConversation &&
-    currentConversation.length > 0 &&
-    currentConversation[currentConversation.length - 1].sender === "user" &&
-    currentConversation[currentConversation.length - 1].text !== null;
+  const sortedConversation = currentConversation?.sort((a, b) => a.id - b.id);
+
+  const isPendingRequest = sortedConversation &&
+    sortedConversation.length > 0 &&
+    sortedConversation[sortedConversation.length - 1].sender === "user" &&
+    sortedConversation[sortedConversation.length - 1].text !== null;
 
   return (
     <div className="min-h-full w-full relative overflow-hidden hide-scrollbar">
