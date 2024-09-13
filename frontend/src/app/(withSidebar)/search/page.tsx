@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Search as SearchIcon } from 'lucide-react';
 import { useQuery } from 'react-query';
+import ReactMarkdown from 'react-markdown';
 
 const searchDocuments = async (query: string) => {
   const response = await fetch('http://localhost:8000/search/invoke', {
@@ -69,12 +70,19 @@ export default function Search() {
             </div>
           </div>
           
-          {isLoading && <p>Loading...</p>}
-          {error && <p>Error: {(error as Error).message}</p>}
+          {isLoading && <p className="text-center mt-4">Loading...</p>}
+          {error && <p className="text-center mt-4 text-red-500">Error: {(error as Error).message}</p>}
           {data && (
-            <div>
-              {/* Display search results here */}
-              <pre>{JSON.stringify(data, null, 2)}</pre>
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold mb-4">Search Results</h2>
+              {data.output.map((result: any, index: number) => (
+                <div key={index} className="bg-gray-100 rounded-lg p-4 mb-4">
+                  <h3 className="text-lg font-medium mb-2">{result.title || `Result ${index + 1}`}</h3>
+                  <ReactMarkdown className="prose">
+                    {result.content || result}
+                  </ReactMarkdown>
+                </div>
+              ))}
             </div>
           )}
         </div>
