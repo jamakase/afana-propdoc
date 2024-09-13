@@ -29,7 +29,6 @@ export default function ConversationPage({
       sender: "bot",
     },
   ]);
-  const [loadingMessage, setLoadingMessage] = useState(false);
 
   const config = useConfig();
   const queryClient = useQueryClient();
@@ -65,7 +64,6 @@ export default function ConversationPage({
     {
       onSuccess: (data) => {
         queryClient.invalidateQueries(["conversation", params.id]);
-        setLoadingMessage(false);
       },
     }
   );
@@ -80,8 +78,12 @@ export default function ConversationPage({
     if (!message.trim()) return;
     sendMessageMutation.mutate(message);
     setMessage("");
-    setLoadingMessage(true);
   };
+
+  const isPendingRequest = currentConversation && 
+    currentConversation.length > 0 && 
+    currentConversation[currentConversation.length - 1].sender === "user" &&
+    currentConversation[currentConversation.length - 1].text !== null;
 
   return (
     <div className="min-h-full w-full relative overflow-hidden hide-scrollbar">
@@ -115,7 +117,7 @@ export default function ConversationPage({
             messages={[
               ...initialMessages,
               ...(currentConversation || []),
-              ...(loadingMessage
+              ...(isPendingRequest
                 ? [{ id: Date.now(), text: "Ответ вот-вот будет...", sender: "bot" }]
                 : []),
             ]}
