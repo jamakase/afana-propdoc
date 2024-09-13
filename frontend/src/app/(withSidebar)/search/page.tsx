@@ -5,7 +5,7 @@ import { useQuery } from 'react-query';
 import ReactMarkdown, { Components } from 'react-markdown';
 
 const searchDocuments = async (query: string) => {
-  const response = await fetch('http://localhost:8000/search/invoke', {
+  const response = await fetch('https://ml.banzai-team.ru/search/invoke', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ input: query }),
