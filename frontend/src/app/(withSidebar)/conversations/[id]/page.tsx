@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { api } from "@/domain/api/api";
 import { useConfig } from "@/domain/config/ConfigProvider";
 import { Send } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import MessageList from "../../../_components/MessageList";
 
@@ -87,6 +87,16 @@ export default function ConversationPage({
     sortedConversation[sortedConversation.length - 1].sender === "user" &&
     sortedConversation[sortedConversation.length - 1].text !== null;
 
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [currentConversation]);
+
   return (
     <div className="min-h-full w-full relative overflow-hidden hide-scrollbar">
       {/* {!isSidebarOpen && (
@@ -124,7 +134,8 @@ export default function ConversationPage({
                 : []),
             ].sort((a, b) => a.id - b.id)}
           />
-
+          <div ref={messagesEndRef} /> {/* Добавьте этот элемент */}
+          
           <div className="p-4 bg-white border-t border-gray-300 fixed bottom-0 w-full md:relative">
             <div className="flex items-stretch gap-3">
               <input
