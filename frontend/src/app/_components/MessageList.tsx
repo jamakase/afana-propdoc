@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { ScrollArea } from "@/components/ui/scroll-area"
-
+import ReactMarkdown from 'react-markdown';
 
 type Message = {
     id: number;
@@ -29,7 +29,13 @@ export default function MessageList({ messages }: MessageListProps) {
                             <div className={`inline-block px-2 py-3 rounded-lg max-w-[70%] break-words ${
                                 msg.sender === 'user' ? 'bg-[#5d76f7] text-white text-left' : 'bg-gray-300 text-black text-justify'
                             }`}>
-                                {msg.text}
+                                {msg.sender === 'user' ? (
+                                    msg.text
+                                ) : (
+                                    <ReactMarkdown className="markdown-content">
+                                        {msg.text}
+                                    </ReactMarkdown>
+                                )}
                             </div>
                         </motion.div>
                     )
