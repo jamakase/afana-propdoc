@@ -1,6 +1,7 @@
 from app.models.qa import InputChat, OutputChat
 from app.routes.file import FileProcessingRequest, _process_file
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from langchain.schema.runnable import RunnableParallel, RunnablePassthrough
 from langserve import add_routes
 from packages.llm import LLMInstance
@@ -31,6 +32,15 @@ app = FastAPI(
     title="LangChain Server",
     version="1.0",
     description="Spin up a simple api server using Langchain's Runnable interfaces",
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
 )
 
 # Add routes for the QA chain instead of just the retriever

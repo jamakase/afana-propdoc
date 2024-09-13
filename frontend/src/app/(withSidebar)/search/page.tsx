@@ -1,12 +1,31 @@
 "use client";
 import React, { useState } from "react";
 import { Search as SearchIcon } from 'lucide-react';
+import { useQuery } from 'react-query';
+
+const searchDocuments = async (query: string) => {
+  const response = await fetch('http://localhost:8000/search/invoke', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ input: query }),
+  });
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
 
 export default function Search() {
   const [searchQuery, setSearchQuery] = useState("");
 
+  const { data, isLoading, error, refetch } = useQuery(
+    ['searchDocuments', searchQuery],
+    () => searchDocuments(searchQuery),
+    { enabled: false }
+  );
+
   const handleSearch = () => {
-    console.log("Поиск:", searchQuery);
+    if (searchQuery.trim()) {
+      refetch();
+    }
   };
 
   return (
@@ -32,20 +51,32 @@ export default function Search() {
                 id="Search"
                 placeholder="Искать..."
                 className="w-full bg-[#EFF0F3] rounded-full p-4 focus:outline-none py-2.5 text-black"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                // onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               />
 
               <span className="absolute inset-y-0 end-0 grid w-10 place-content-center">
                 <button
                   type="button"
                   className="text-gray-600 hover:text-gray-700"
+                  onClick={handleSearch}
                 >
                   <span className="sr-only">Поиск</span>
-
                   <SearchIcon className="size-4" />
                 </button>
               </span>
             </div>
           </div>
+          
+          {isLoading && <p>Loading...</p>}
+          {error && <p>Error: {(error as Error).message}</p>}
+          {data && (
+            <div>
+              {/* Display search results here */}
+              <pre>{JSON.stringify(data, null, 2)}</pre>
+            </div>
+          )}
         </div>
       </main>
     </div>
