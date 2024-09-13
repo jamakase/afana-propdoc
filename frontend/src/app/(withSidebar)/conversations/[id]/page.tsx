@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { api } from "@/domain/api/api";
 import { useConfig } from "@/domain/config/ConfigProvider";
-import { Send, Paperclip } from "lucide-react";
+import { Send } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import MessageList from "../../../_components/MessageList";
@@ -68,24 +68,16 @@ export default function ConversationPage({
     }
   );
 
-  const [attachedFile, setAttachedFile] = useState<File | null>(null);
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleSendMessage();
     }
   };
 
-  const handleFileAttach = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null;
-    setAttachedFile(file);
-  };
-
   const handleSendMessage = async () => {
-    if (!message.trim() && !attachedFile) return;
+    if (!message.trim()) return;
     sendMessageMutation.mutate(message);
     setMessage("");
-    setAttachedFile(null);
   };
 
   const sortedConversation = currentConversation?.sort((a, b) => a.id - b.id);
@@ -144,19 +136,6 @@ export default function ConversationPage({
                 className="flex-grow p-2 focus:outline-none h-full"
                 style={{ color: "black" }}
               />
-              <input
-                type="file"
-                id="file-attach"
-                onChange={handleFileAttach}
-                className="hidden"
-              />
-              <Button
-                size="icon"
-                onClick={() => document.getElementById('file-attach')?.click()}
-                className="rounded-full"
-              >
-                <Paperclip className="w-5 h-5 text-white mt-px mr-px" />
-              </Button>
               <Button
                 size="icon"
                 onClick={handleSendMessage}
@@ -165,11 +144,6 @@ export default function ConversationPage({
                 <Send className="w-5 h-5 text-white mt-px mr-px" />
               </Button>
             </div>
-            {attachedFile && (
-              <div className="mt-2 text-sm text-gray-600">
-                Прикреплен файл: {attachedFile.name}
-              </div>
-            )}
           </div>
         </div>
       </main>
