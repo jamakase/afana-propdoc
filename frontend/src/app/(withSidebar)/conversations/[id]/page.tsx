@@ -22,6 +22,14 @@ export default function ConversationPage({
   params: { id: string };
 }) {
   const [message, setMessage] = useState("");
+  const [initialMessages, setInitialMessages] = useState([
+    {
+      id: 0,
+      text: "Привет! Я бот, который поможет вам работать со строительными нормативными документами.",
+      sender: "bot",
+    },
+  ]);
+  const [loadingMessage, setLoadingMessage] = useState(false);
 
   const config = useConfig();
   const queryClient = useQueryClient();
@@ -57,6 +65,7 @@ export default function ConversationPage({
     {
       onSuccess: (data) => {
         queryClient.invalidateQueries(["conversation", params.id]);
+        setLoadingMessage(false);
       },
     }
   );
@@ -71,6 +80,7 @@ export default function ConversationPage({
     if (!message.trim()) return;
     sendMessageMutation.mutate(message);
     setMessage("");
+    setLoadingMessage(true);
   };
 
   return (
@@ -101,7 +111,15 @@ export default function ConversationPage({
       <main className="flex h-full">
 
         <div className="flex-1 flex flex-col h-full ml-[0px] md:ml-0 overflow-y-auto">
-          <MessageList messages={currentConversation || []} />
+          <MessageList
+            messages={[
+              ...initialMessages,
+              ...(currentConversation || []),
+              ...(loadingMessage
+                ? [{ id: Date.now(), text: "Ответ вот-вот будет...", sender: "bot" }]
+                : []),
+            ]}
+          />
 
           <div className="p-4 bg-white border-t border-gray-300 fixed bottom-0 w-full md:relative">
             <div className="flex items-stretch gap-3">
@@ -115,7 +133,7 @@ export default function ConversationPage({
                 style={{ color: "black" }}
               />
               <Button
-              size="icon"
+                size="icon"
                 onClick={handleSendMessage}
                 className="rounded-full"
               >
