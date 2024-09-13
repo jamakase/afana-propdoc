@@ -101,7 +101,7 @@ def run_question_task(conversation_id, question: str):
             }
         }
 
-        all_messages = MessageService.get_message_for_ml(conversation_id)
+        all_messages = MessageService.get_message(conversation_id)
 
         query = {
             "data": data,
