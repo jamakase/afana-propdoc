@@ -1,5 +1,18 @@
 from app.config import Config
 
+from langchain.embeddings.base import Embeddings
+from sentence_transformers import SentenceTransformer
+
+# 1. Обёртка для модели SentenceTransformer
+class SentenceTransformerEmbeddings(Embeddings):
+    def __init__(self, model_name: str = 'all-mpnet-base-v2'):
+        self.model = SentenceTransformer(model_name)
+    
+    def embed_documents(self, texts):
+        return self.model.encode(texts)
+    
+    def embed_query(self, text):
+        return self.model.encode([text])[0]
 
 class LLMInstance:
     def __init__(self, config: Config):
@@ -9,7 +22,7 @@ class LLMInstance:
 
         if config.LLM_SOURCE == "openai":
             from langchain_openai import ChatOpenAI
-            from langchain_community.embeddings import FastEmbedEmbeddings
+            from langchain_community.embeddings import HuggingFaceEmbeddings
 
             self.llm = ChatOpenAI(
                 model=config.MODEL,
@@ -17,7 +30,7 @@ class LLMInstance:
                 openai_api_base=config.OPENAI_BASE_URL,
                 max_tokens=1000,
             )
-            self.embeddings = FastEmbedEmbeddings()
+            self.embeddings = SentenceTransformerEmbeddings()
         elif config.LLM_SOURCE == "ygpt":
             from langchain_community.chat_models import ChatYandexGPT
             from langchain_community.embeddings import YandexGPTEmbeddings

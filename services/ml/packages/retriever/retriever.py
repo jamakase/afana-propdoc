@@ -15,7 +15,7 @@ class Retriever:
             client.create_collection(
                 collection_name=collection_name,
                 vectors_config={
-                    "size": 384,
+                    "size": 768,
                     "distance": "Cosine",
                 },
             )
