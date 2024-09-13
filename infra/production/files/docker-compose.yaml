@@ -113,7 +113,7 @@ services:
 
   ml:
     container_name: ml
-    image: cr.yandex/crpc50gkvq2bp251sfgb/ml
+    image: cr.yandex/crpc50gkvq2bp251sfgb/ml:latest
     pull_policy: always
     environment:
       LLM_SOURCE: openai
@@ -129,8 +129,12 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.ml.rule=Host(`ml.${HOST}`)"
-      - "traefik.http.routers.ml.entrypoints=web"
+      - "traefik.http.routers.ml.entrypoints=websecure"
+      - "traefik.http.routers.ml.tls.certresolver=myresolver"
       - "traefik.http.services.ml.loadbalancer.server.port=8000"
+      - "traefik.http.routers.ml-http.rule=Host(`ml.${HOST}`)"
+      - "traefik.http.routers.ml-http.entrypoints=web"
+      - "traefik.http.routers.ml-http.middlewares=ml-https-redirect"  
 
   qdrant:
     image: qdrant/qdrant:latest
