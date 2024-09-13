@@ -118,3 +118,33 @@ class MessageService:
         }
 
         return result, 200
+
+
+    @staticmethod
+    def get_message_for_ml(conversation_id):
+        """
+        Получает только сообщения и роли отправителей для заданного идентификатора беседы.
+
+        :param conversation_id: Идентификатор беседы.
+        :return: Словарь с сообщениями, и ролями отправителей.
+        """
+
+        messages = MessageModel.query.filter(MessageModel.conversation_id.in_([conversation_id])).all()
+
+        if not messages:
+            return [
+                {
+                    "text": None,
+                    "role": None
+                }
+            ]
+
+        formatted_messages = [
+            {
+                "text": message.text,
+                "role": message.role,
+            }
+            for message in messages
+        ]
+
+        return formatted_messages
