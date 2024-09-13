@@ -95,6 +95,7 @@ def run_question_task(question: str):
         data = {
             "input":{
                 "question": question,
+                "context": "Контекст"
             }
         }
         response = requests.post(rag_url, json=data)
