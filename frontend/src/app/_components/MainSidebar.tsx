@@ -35,9 +35,9 @@ export default function MainSidebar({ data }: SidebarProps) {
               <Link
                 href={item.href}
                 className={
-                  `${pathname.includes(item.href) ? "bg-black text-white pointer-events-none" : "bg-transparent"} 
+                  `${pathname.includes(item.href) ? "bg-black text-white pointer-events-none" : "bg-transparent text-black"} 
                   flex justify-center items-center 
-                  w-full h-12 text-balack rounded-lg
+                  w-full h-12 rounded-lg
                   transition-all duration-500
                   hover:bg-white/70 active:scale-90`
                 }

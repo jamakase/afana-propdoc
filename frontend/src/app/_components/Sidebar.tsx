@@ -4,7 +4,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { AnimatePresence, motion } from "framer-motion";
 import { X, MessageCirclePlus } from 'lucide-react';
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
 type Conversation = {
@@ -26,6 +26,7 @@ export default function Sidebar({
   const config = useConfig();
 
   const queryClient = useQueryClient();
+  const params = useParams();
 
   const { data: conversations = [] } = useQuery("conversations", async () => {
     const response = await api.get_messages__user_id_(config.ENDPOINT);
@@ -91,7 +92,7 @@ export default function Sidebar({
                   <label
                     htmlFor={`chat-${conversation.id}`}
                     className={`flex cursor-pointer items-center justify-between gap-4 border-b px-2 py-3 md:p-4 text-sm font-medium ${
-                      currentConversationId == conversation.id
+                      params.id == conversation.id
                         ? "bg-[#5d76f7]/20 text-black font-semibold"
                         : "text-black"
                     }`}
