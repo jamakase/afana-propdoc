@@ -80,8 +80,8 @@ export default function ConversationPage({
     setMessage("");
   };
 
-  const isPendingRequest = currentConversation && 
-    currentConversation.length > 0 && 
+  const isPendingRequest = currentConversation &&
+    currentConversation.length > 0 &&
     currentConversation[currentConversation.length - 1].sender === "user" &&
     currentConversation[currentConversation.length - 1].text !== null;
 
@@ -120,7 +120,7 @@ export default function ConversationPage({
               ...(isPendingRequest
                 ? [{ id: Date.now(), text: "Ответ вот-вот будет...", sender: "bot" }]
                 : []),
-            ]}
+            ].sort((a, b) => a.id - b.id)}
           />
 
           <div className="p-4 bg-white border-t border-gray-300 fixed bottom-0 w-full md:relative">
