@@ -35,7 +35,7 @@ export default function MainSidebar({ data }: SidebarProps) {
               <Link
                 href={item.href}
                 className={
-                  `${pathname.includes(item.href) ? "bg-gray-800 text-white pointer-events-none" : ""} 
+                  `${pathname.includes(item.href) ? "bg-black text-white pointer-events-none" : ""} 
                   flex justify-center items-center 
                   w-full h-12 bg-transparent text-balack rounded-lg
                   transition-all duration-500

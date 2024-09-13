@@ -29,6 +29,12 @@ export default function Search() {
     }
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
   return (
     <div className="flex flex-col bg-white">
       {/* <header className="py-4 pl-16 pr-2 md:py-5 md:px-10 w-full rounded-b-[30px] fixed md:relative top-0 z-20"> */}
@@ -54,7 +60,7 @@ export default function Search() {
                 className="w-full bg-[#EFF0F3] rounded-full p-4 focus:outline-none py-2.5 text-black"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                // onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                onKeyPress={handleKeyPress}
               />
 
               <span className="absolute inset-y-0 end-0 grid w-10 place-content-center">
