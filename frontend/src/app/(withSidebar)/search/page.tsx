@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Search as SearchIcon } from 'lucide-react';
 import { useQuery } from 'react-query';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown, { Components } from 'react-markdown';
 
 const searchDocuments = async (query: string) => {
   const response = await fetch('http://localhost:8000/search/invoke', {
@@ -33,6 +33,17 @@ export default function Search() {
     if (e.key === 'Enter') {
       handleSearch();
     }
+  };
+
+  const customRenderers: Components = {
+    img: ({ src, alt }) => {
+      if (src) {
+        // Заменяем символ в ссылке на изображение
+        const newSrc = src.replace(' ', '%');
+        return <img src={newSrc} alt={alt} />;
+      }
+      return null;
+    },
   };
 
   return (
@@ -84,7 +95,7 @@ export default function Search() {
               {data.output.map((result: any, index: number) => (
                 <div key={index} className="bg-gray-100 rounded-lg p-4 mb-4">
                   <h3 className="text-lg font-medium mb-2">{result.title || `Result ${index + 1}`}</h3>
-                  <ReactMarkdown className="prose">
+                  <ReactMarkdown className="prose" components={customRenderers}>
                     {result.content || result}
                   </ReactMarkdown>
                 </div>
