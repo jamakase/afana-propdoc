@@ -7,108 +7,79 @@ propdoc-frontend:
   enabled: true
   extraEnv:
     - name: API_URL
-      value: https://propdoc-api.banzai-predict.site
-    - name: KEYCLOAK_CLIENT_ID
-      value: webapp
-    - name: KEYCLOAK_AUTHORITY
-      value: https://propdoc-auth.banzai-predict.site/realms/propdoc-mrkt
+      value: http://api.test.example.com
   ingress:
     enabled: true
     annotations:
       kubernetes.io/ingress.class: traefik
     hosts:
-      - host: ${HOST}
+      - host: test.example.com
         paths:
           - path: /
             pathType: Prefix
 
 propdoc-ml:
-  config:
-    MODEL_URL: https://propdoc-model-storage.obs.ru-moscow-1.hc.sbercloud.ru/models.zip
   service:
-    port: 8080
+    port: 8000
   enabled: true
   extraEnv:
     - name: LLM_SOURCE
-      value: ollama
-    - name: OLLAMA_HOST
-      value: http://ollama:11434
-    - name: MODEL_NAME
-      value: llama3.1
+      value: openai
     - name: QDRANT_HOST
-      value: http://qdrant:6333
+      value: http://qdrant.propdoc.svc.cluster.local:6333
+    - name: OPENAI_API_KEY
+      value: placeholder
 
 propdoc-backend:
   enabled: true
   config:
-    SERVER_PORT: 8080
-
-    RMQ_FEEDBACK_QUEUE: feedback-queue
-    RMQ_BEHAVIOR_QUEUE: behavior-queue
-    RMQ_FEEDBACK_POST_QUEUE: feedback-post-queue
-    RMQ_FEEDBACK_RESPONSE_QUEUE: feedback-response-queue
-    DB_HOST: propdoc-model-behavior-postgresql
-    DB_NAME: model-behavior
-    DB_PORT: "5432"
-    DB_USERNAME: app
-    DB_PASSWORD: password
-
-    RMQ_HOST: rabbitmq.rabbitmq
-    RMQ_PORT: 5672
-    RMQ_USERNAME: user
-    RMQ_PASSWORD: pass
-    MODEL_URL: "propdoc-ml-service.propdoc-ml-service:8080/v1"
-
+    SERVER_PORT: 5000
   service:
-    port: 8080
-
+    port: 5000
   postgresql:
     primary:
       persistence:
         enabled: true
-        size: 2Gi
+        size: 8Gi
     auth:
-      database: model-behavior
-      password: "password"
-      username: "app"
-
+      database: propdoc
+      password: placeholder
+      username: propdoc
   ingress:
     enabled: true
     annotations:
       kubernetes.io/ingress.class: traefik
     hosts:
-      - host: api.${HOST}
+      - host: api.test.example.com
         paths:
           - path: /
             pathType: Prefix
   extraEnv:
     - name: DATABASE_URL
-      value: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgresql:5432/${POSTGRES_DB}
+      value: postgresql://propdoc:placeholder@db.propdoc.svc.cluster.local:5432/propdoc
     - name: CELERY_BROKER_URL
-      value: redis://:${REDIS_PASSWORD}@redis:6379/0
+      value: redis://:placeholder@redis.propdoc.svc.cluster.local:6379/0
     - name: CELERY_RESULT_BACKEND
-      value: redis://:${REDIS_PASSWORD}@redis:6379/0
+      value: redis://:placeholder@redis.propdoc.svc.cluster.local:6379/0
 
-propdoc-model-interceptor:
-  config:
-    SERVER_PORT: 8080
-    RMQ_HOST: rabbitmq.rabbitmq
-    RMQ_PORT: 5672
-    RMQ_USERNAME: user
-    RMQ_PASSWORD: pass
-    RMQ_ROUTING_KEY: behavior-queue
-    MODEL_URL: "propdoc-ml-service.propdoc-ml-service:8080/v1"
-  service:
-    port: 8080
+propdoc-celery-worker:
   enabled: true
+  extraEnv:
+    - name: DATABASE_URL
+      value: postgresql://propdoc:placeholder@db.propdoc.svc.cluster.local:5432/propdoc
+    - name: CELERY_BROKER_URL
+      value: redis://:placeholder@redis.propdoc.svc.cluster.local:6379/0
+    - name: CELERY_RESULT_BACKEND
+      value: redis://:placeholder@redis.propdoc.svc.cluster.local:6379/0
+    - name: HOST
+      value: http://ml.propdoc.svc.cluster.local:8000/invoke
 
 redis:
   enabled: true
   auth:
     enabled: true
-    password: ${REDIS_PASSWORD}
+    password: placeholder
 
-# New charts to add
 traefik:
   enabled: true
   ports:
@@ -120,19 +91,10 @@ traefik:
     enabled: true
     port: 8080
 
-postgresql:
-  enabled: true
-  auth:
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
-    database: ${POSTGRES_DB}
-  primary:
-    persistence:
-      enabled: true
-      size: 8Gi
-
 qdrant:
   enabled: true
+  service:
+    port: 6333
   persistence:
     enabled: true
     size: 8Gi

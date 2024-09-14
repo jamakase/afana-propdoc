@@ -37,7 +37,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            {{- with .Values.extraEnv }}
+            {{- with .Values.extraEnvCelery}}
               {{- toYaml . | nindent 12 }}
             {{- end }}
           ports:

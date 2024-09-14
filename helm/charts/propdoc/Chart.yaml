@@ -36,10 +36,6 @@ dependencies:
     name: redis
     repository: oci://registry-1.docker.io/bitnamicharts
     version: 20.1.0
-  - condition: postgresql.enabled
-    name: postgresql
-    repository: oci://registry-1.docker.io/bitnamicharts
-    version: 15.5.29
   - condition: ml.enabled
     name: propdoc-ml
     repository: oci://cr.yandex/crpc50gkvq2bp251sfgb
@@ -48,3 +44,7 @@ dependencies:
     name: qdrant
     repository: "https://qdrant.github.io/qdrant-helm"
     version: 1.11.3
+  - condition: traefik.enabled
+    name: traefik
+    repository: "https://traefik.github.io/charts"
+    version: 22.1.0
