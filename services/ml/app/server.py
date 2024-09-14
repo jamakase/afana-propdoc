@@ -9,24 +9,41 @@ from packages.prompts import prompt
 from packages.retriever import Retriever
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableLambda
+from sentence_transformers import CrossEncoder
+from langchain.prompts import ChatPromptTemplate
+from operator import itemgetter
 
 from .config import config
 
 llm_instance = LLMInstance(config)
 retriever_instance = Retriever(llm_instance.get_embeddings(), host=config.QDRANT_HOST, collection_name=config.QDRANT_COLLECTION_NAME, api_key=config.QDRANT_API_KEY)
 
+cross_encoder = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-12-v2')
 
-# Modify the qa_chain definition
+retriever = retriever_instance.get_retriever()
+retriever.search_kwargs['k'] = 20
+
+def rerank_documents_with_crossencoder(query_and_docs):
+    docs = query_and_docs["docs"]
+    query = query_and_docs["question"]
+    scores = cross_encoder.predict([(query, doc.page_content) for doc in docs])
+    ranked_docs = [doc for _, doc in sorted(zip(scores, docs), key=lambda x: x[0], reverse=True)]
+    return {"docs": ranked_docs[:3], "question": query}
+
+def join_docs(docs):
+    return " ".join([doc.page_content for doc in docs])
+
 qa_chain = (
     RunnableParallel(
-        {"context": retriever_instance.get_retriever(), "question": RunnablePassthrough()}
+        {"docs": retriever, "question": itemgetter("question")}
     )
+    | RunnableLambda(rerank_documents_with_crossencoder)
+    | RunnableParallel({"context": itemgetter("docs") | RunnableLambda(join_docs), "question": itemgetter("question")})
     | prompt
     | llm_instance.get_llm()
     | StrOutputParser()
     | (lambda x: {"result": x})
 ).with_types(input_type=InputChat, output_type=OutputChat)
-
 
 app = FastAPI(
     title="LangChain Server",
@@ -56,6 +73,17 @@ add_routes(
 retriever_chain = retriever_instance.get_retriever() | (lambda docs: [doc.page_content for doc in docs])
 
 add_routes(app, path="/search", runnable=retriever_chain)
+
+vqa_chain = (
+    RunnableParallel(
+        {"context": retriever_instance.get_retriever(), "question": RunnablePassthrough()}
+    )
+    | RunnableLambda(lambda x: x.replace("s3://afana-propdoc-production", "https://"))
+    | prompt
+    | llm_instance.get_llm()
+).with_types(input_type=InputChat, output_type=OutputChat)
+
+add_routes(app, path="/vqa", runnable=vqa_chain)
 
 if __name__ == "__main__":
     import uvicorn
