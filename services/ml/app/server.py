@@ -2,7 +2,11 @@ from app.models.qa import InputChat, OutputChat
 from app.routes.file import FileProcessingRequest, _process_file
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from langchain.schema.runnable import RunnableParallel, RunnablePassthrough
+from langchain.schema.runnable import (
+    RunnableParallel,
+    RunnablePassthrough,
+    RunnableBranch,
+)
 from langserve import add_routes
 from packages.llm import LLMInstance
 from packages.prompts import prompt
@@ -10,35 +14,71 @@ from packages.retriever import Retriever
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableLambda
 from sentence_transformers import CrossEncoder
-from langchain.prompts import ChatPromptTemplate
 from operator import itemgetter
+from langchain_core.messages import HumanMessage
+
 
 from .config import config
 
 llm_instance = LLMInstance(config)
-retriever_instance = Retriever(llm_instance.get_embeddings(), host=config.QDRANT_HOST, collection_name=config.QDRANT_COLLECTION_NAME, api_key=config.QDRANT_API_KEY)
+retriever_instance = Retriever(
+    llm_instance.get_embeddings(),
+    host=config.QDRANT_HOST,
+    collection_name=config.QDRANT_COLLECTION_NAME,
+    api_key=config.QDRANT_API_KEY,
+)
 
-cross_encoder = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-12-v2')
+cross_encoder = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-12-v2")
 
 retriever = retriever_instance.get_retriever()
-retriever.search_kwargs['k'] = 20
+retriever.search_kwargs["k"] = 20
+
 
 def rerank_documents_with_crossencoder(query_and_docs):
     docs = query_and_docs["docs"]
     query = query_and_docs["question"]
     scores = cross_encoder.predict([(query, doc.page_content) for doc in docs])
-    ranked_docs = [doc for _, doc in sorted(zip(scores, docs), key=lambda x: x[0], reverse=True)]
+    ranked_docs = [
+        doc for _, doc in sorted(zip(scores, docs), key=lambda x: x[0], reverse=True)
+    ]
     return {"docs": ranked_docs[:3], "question": query}
+
 
 def join_docs(docs):
     return " ".join([doc.page_content for doc in docs])
 
+
+def extract_image_info(docs):
+    return [
+        f"https://storage.yandexcloud.net/afana-propdoc-production/s3%3A//afana-propdoc-production/docs_extracted_data/{url.replace('_processed', '').replace('P-60.13330.2020.pdf-5', 'P-60.13330.2020.pdf').replace('unstructured_data/', '')}"
+        for doc in docs
+        for url in doc.metadata.get("Table", []) + doc.metadata.get("Picture", [])
+    ]
+
+
+def route(info):
+    if not info["image_urls"]:
+        return prompt
+    else:
+        for image_url in info["image_urls"]:
+            prompt += HumanMessage(content=f"Image: {image_url}")
+        return prompt
+
+
 qa_chain = (
-    RunnableParallel(
-        {"docs": retriever, "question": itemgetter("question")}
-    )
+    RunnableParallel({"docs": retriever, "question": itemgetter("question")})
     | RunnableLambda(rerank_documents_with_crossencoder)
-    | RunnableParallel({"context": itemgetter("docs") | RunnableLambda(join_docs), "question": itemgetter("question")})
+    | RunnableParallel(
+        {
+            "context": itemgetter("docs") | RunnableLambda(join_docs),
+            "question": itemgetter("question"),
+            "image_urls": itemgetter("docs") | RunnableLambda(extract_image_info),
+        }
+    )
+    # | RunnableBranch(
+    #     (lambda x: x["image_urls"], prompt),
+    #     prompt
+    # )
     | prompt
     | llm_instance.get_llm()
     | StrOutputParser()
@@ -70,13 +110,18 @@ add_routes(
     path="/pdf",
 )
 
-retriever_chain = retriever_instance.get_retriever() | (lambda docs: [doc.page_content for doc in docs])
+retriever_chain = retriever_instance.get_retriever() | (
+    lambda docs: [doc.page_content for doc in docs]
+)
 
 add_routes(app, path="/search", runnable=retriever_chain)
 
 vqa_chain = (
     RunnableParallel(
-        {"context": retriever_instance.get_retriever(), "question": RunnablePassthrough()}
+        {
+            "context": retriever_instance.get_retriever(),
+            "question": RunnablePassthrough(),
+        }
     )
     | RunnableLambda(lambda x: x.replace("s3://afana-propdoc-production", "https://"))
     | prompt
