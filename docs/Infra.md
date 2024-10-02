@@ -8,4 +8,6 @@
 
 ![Архитектура](./images/arch.jpg)
 
-- [CI/CD](docs/components/CI-CD.md)
+- [CI/CD](./CI-CD.md)
+- [Preprocessing](./Preprocessing.md)
+
